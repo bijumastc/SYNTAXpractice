@@ -1,1 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syntax Twin — Introduction to Syntax</title>
+<style>
+:root {
+  --bg: #f5f5f5; --card: #ffffff; --text: #212121; --muted: #757575;
+  --border: #e0e0e0; --accent: #2e7d32; --accent2: #1b5e20;
+  --good: #2e7d32; --avg: #f57f17; --weak: #c62828;
+  --radius: 14px; --shadow: 0 2px 12px rgba(0,0,0,.08);
+  --input-bg: #fafafa; --set1: #1565c0; --set2: #6a1b9a;
+  --set3: #e65100; --set4: #00695c;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#181a20;--card:#23262f;--text:#e8e8e8;--muted:#9e9e9e;
+  --border:#333;--accent:#66bb6a;--accent2:#a5d6a7;--good:#66bb6a;
+  --avg:#ffa726;--weak:#ef5350;--shadow:0 2px 12px rgba(0,0,0,.3);
+  --input-bg:#2a2d36;--set1:#42a5f5;--set2:#ce93d8;--set3:#ff8a65;--set4:#4db6ac;}
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;}
+.screen{display:none;max-width:860px;margin:0 auto;padding:20px 16px 40px;}
+.screen.active{display:block;}
+.app-header{text-align:center;padding:28px 16px 12px;}
+.app-header h1{font-size:1.7rem;font-weight:800;color:var(--accent);}
+.app-header p{color:var(--muted);font-size:.95rem;margin-top:4px;}
+.home-grid{display:grid;gap:14px;margin-top:20px;}
+.home-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 18px;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.home-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.home-card h3{font-size:1.05rem;margin-bottom:4px;}
+.home-card p{color:var(--muted);font-size:.85rem;margin-top:2px;}
+.badge{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:10px;
+  color:#fff;margin-left:6px;vertical-align:middle;font-weight:600;}
+.btn{display:inline-block;padding:10px 22px;border-radius:8px;border:none;
+  font-size:.95rem;font-weight:600;cursor:pointer;transition:background .2s,transform .1s;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accent);}
+.btn-outline:hover{background:var(--accent);color:#fff;}
+.btn-sm{padding:6px 14px;font-size:.82rem;}
+.btn-good{background:var(--good);color:#fff;}
+.btn-weak{background:var(--weak);color:#fff;}
+.name-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px 24px;max-width:440px;margin:40px auto;text-align:center;}
+.name-form h2{color:var(--accent);margin-bottom:6px;}
+.name-form p{color:var(--muted);font-size:.9rem;margin-bottom:18px;}
+.name-form input{width:100%;padding:12px 14px;margin-bottom:12px;border:1px solid var(--border);
+  border-radius:8px;font-size:1rem;background:var(--input-bg);color:var(--text);}
+.name-form input:focus{outline:none;border-color:var(--accent);}
+.nav-back{margin-bottom:12px;}
+.progress-bar-wrap{background:var(--border);border-radius:6px;height:8px;margin:12px 0 20px;overflow:hidden;}
+.progress-bar-fill{height:100%;border-radius:6px;transition:width .4s ease;}
 
+/* MCQ */
+.mcq-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px 20px;margin-bottom:16px;}
+.mcq-card .q-num{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:6px;}
+.mcq-card .q-text{font-size:1.05rem;font-weight:600;margin-bottom:14px;line-height:1.5;}
+.mcq-option{display:block;width:100%;text-align:left;padding:12px 16px;margin-bottom:8px;
+  border:2px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);
+  font-size:.95rem;cursor:pointer;transition:border-color .2s,background .2s;}
+.mcq-option:hover:not(.chosen){border-color:var(--accent);background:rgba(46,125,50,.05);}
+.mcq-option.chosen.correct{border-color:var(--good);background:rgba(46,125,50,.1);}
+.mcq-option.chosen.wrong{border-color:var(--weak);background:rgba(198,40,40,.1);}
+.mcq-option.reveal-correct{border-color:var(--good);background:rgba(46,125,50,.08);}
+.mcq-option.chosen .opt-icon,.mcq-option.reveal-correct .opt-icon{display:inline;}
+.opt-icon{display:none;margin-right:6px;}
+.mcq-feedback{margin-top:10px;padding:12px 16px;border-radius:10px;font-size:.9rem;
+  line-height:1.5;display:none;}
+.mcq-feedback.show{display:block;}
+.mcq-feedback.correct-fb{background:rgba(46,125,50,.1);border-left:4px solid var(--good);}
+.mcq-feedback.wrong-fb{background:rgba(198,40,40,.1);border-left:4px solid var(--weak);}
+.mcq-option:disabled{cursor:default;opacity:.85;}
+
+/* Multistep */
+.ms-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px 20px;margin-bottom:16px;}
+.ms-card .q-num{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:6px;}
+.ms-card .q-text{font-size:1.02rem;font-weight:600;margin-bottom:8px;line-height:1.5;}
+.ms-card .q-context{font-size:.9rem;color:var(--muted);margin-bottom:14px;line-height:1.5;
+  padding:10px 14px;background:rgba(46,125,50,.04);border-radius:8px;border-left:3px solid var(--accent);}
+.step-block{border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;
+  transition:border-color .3s;}
+.step-block.locked{opacity:.5;pointer-events:none;}
+.step-block.done-correct{border-color:var(--good);background:rgba(46,125,50,.04);}
+.step-block.done-wrong{border-color:var(--weak);background:rgba(198,40,40,.04);}
+.step-label{font-size:.82rem;font-weight:700;color:var(--accent);margin-bottom:8px;}
+.step-prompt{font-size:.92rem;margin-bottom:10px;line-height:1.5;}
+.step-option{display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:6px;
+  border:2px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);
+  font-size:.9rem;cursor:pointer;transition:border-color .2s,background .2s;}
+.step-option:hover:not(.chosen){border-color:var(--accent);}
+.step-option.chosen.correct{border-color:var(--good);background:rgba(46,125,50,.1);}
+.step-option.chosen.wrong{border-color:var(--weak);background:rgba(198,40,40,.1);}
+.step-option.reveal-correct{border-color:var(--good);background:rgba(46,125,50,.08);}
+.step-option:disabled{cursor:default;opacity:.85;}
+.step-fb{margin-top:8px;padding:10px 14px;border-radius:8px;font-size:.88rem;display:none;line-height:1.5;}
+.step-fb.show{display:block;}
+.step-fb.correct-fb{background:rgba(46,125,50,.08);border-left:3px solid var(--good);}
+.step-fb.wrong-fb{background:rgba(198,40,40,.08);border-left:3px solid var(--weak);}
+.ms-summary{margin-top:10px;padding:12px 16px;border-radius:10px;font-size:.9rem;display:none;line-height:1.5;}
+.ms-summary.show{display:block;}
+.ms-summary.all-correct{background:rgba(46,125,50,.1);border-left:4px solid var(--good);}
+.ms-summary.has-errors{background:rgba(245,127,23,.1);border-left:4px solid var(--avg);}
+
+/* Results */
+.result-header{text-align:center;margin-bottom:20px;}
+.score-ring{width:110px;height:110px;border-radius:50%;border:6px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;margin:16px auto;
+  font-size:1.6rem;font-weight:800;color:var(--accent);}
+.score-pct{font-size:1.3rem;font-weight:700;color:var(--accent);text-align:center;}
+.grade-text{font-size:1.1rem;font-weight:700;text-align:center;margin:6px 0;}
+.grade-msg{text-align:center;color:var(--muted);font-size:.95rem;margin-bottom:16px;line-height:1.5;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:12px 0;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:16px;text-align:center;}
+.stat-num{font-size:1.5rem;font-weight:800;}
+.stat-label{font-size:.78rem;color:var(--muted);margin-top:2px;}
+.topic-strength{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:.88rem;}
+.bar-bg{flex:1;height:10px;background:var(--border);border-radius:5px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:5px;transition:width .5s ease;}
+.bar-fill.strong{background:var(--good);}
+.bar-fill.medium{background:var(--avg);}
+.bar-fill.weak{background:var(--weak);}
+.encourage-box{background:var(--card);border:2px solid var(--accent);border-radius:var(--radius);
+  padding:20px;margin:20px 0;text-align:center;}
+.encourage-box .emoji{font-size:2rem;margin-bottom:8px;}
+.encourage-box h3{color:var(--accent);margin-bottom:6px;}
+.encourage-box p{color:var(--muted);font-size:.92rem;line-height:1.5;}
+.next-step-box{background:rgba(46,125,50,.06);border-radius:10px;padding:16px;margin-top:14px;}
+.next-step-box h3{color:var(--accent);font-size:1rem;margin-bottom:8px;}
+.next-step-box ol{padding-left:20px;}
+.next-step-box li{margin-bottom:4px;font-size:.9rem;}
+
+/* Dashboard */
+.dash-login{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px 24px;max-width:400px;margin:40px auto;text-align:center;}
+.dash-login input{width:100%;padding:12px 14px;margin-bottom:12px;border:1px solid var(--border);
+  border-radius:8px;font-size:1rem;background:var(--input-bg);color:var(--text);}
+.dash-login input:focus{outline:none;border-color:var(--accent);}
+.dash-table-wrap{overflow-x:auto;margin-top:16px;}
+table.dash-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.dash-table th,.dash-table td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.dash-table th{background:var(--accent);color:#fff;font-weight:600;position:sticky;top:0;}
+.dash-table tr:hover{background:rgba(46,125,50,.04);}
+.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:16px 0;}
+
+/* Learn */
+.learn-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:12px;overflow:hidden;}
+.learn-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  transition:background .15s;}
+.learn-header:hover{background:rgba(46,125,50,.04);}
+.learn-header .lh-icon{font-size:1.3rem;}
+.learn-header .lh-title{flex:1;font-weight:700;font-size:1rem;}
+.learn-header .lh-arrow{color:var(--muted);transition:transform .25s;font-size:.9rem;}
+.learn-header.open .lh-arrow{transform:rotate(180deg);}
+.learn-body{display:none;padding:0 20px 18px;font-size:.92rem;line-height:1.7;}
+.learn-body.open{display:block;}
+.learn-body h4{color:var(--accent);margin:12px 0 4px;font-size:.95rem;}
+.learn-body ul,.learn-body ol{padding-left:20px;margin:4px 0 8px;}
+.learn-body li{margin-bottom:3px;}
+.learn-body .example{background:rgba(46,125,50,.05);border-left:3px solid var(--accent);
+  padding:8px 12px;border-radius:0 8px 8px 0;margin:6px 0;font-size:.88rem;}
+.learn-body .key-point{background:rgba(46,125,50,.08);border-radius:8px;padding:8px 12px;
+  margin:6px 0;font-size:.88rem;border-left:3px solid var(--good);}
+.app-footer{text-align:center;padding:20px;color:var(--muted);font-size:.78rem;margin-top:20px;}
+/* ===== TREE DIAGRAMS ===== */
+.tree-wrap{overflow-x:auto;padding:16px 8px;margin:8px 0 12px;background:var(--bg);
+  border:2px dashed var(--border);border-radius:var(--radius);text-align:center;min-height:60px;}
+.tree-title{font-size:.75rem;color:var(--muted);margin-bottom:8px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;}
+.tree-wrap svg{display:block;margin:0 auto;}
+@media(max-width:600px){
+  .app-header h1{font-size:1.35rem;}
+  .mcq-card,.ms-card{padding:16px 14px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .topic-strength{flex-wrap:wrap;}
+  .topic-strength span:first-child{min-width:100%!important;margin-bottom:2px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="homeScreen" class="screen active">
+  <div class="app-header">
+    <h1>🌳 Syntax Twin</h1>
+    <p>Your Digital Learning Companion for Introduction to Syntax</p>
+  </div>
+  <div class="home-grid">
+    <div class="home-card" onclick="showLearn()">
+      <h3 style="color:var(--accent)">📚 Learn Syntax</h3>
+      <p>Study the key concepts before you take the tests. Topic-wise explanations from basic concepts to TG transformations.</p>
+    </div>
+    <div class="home-card" onclick="startTest(1)">
+      <h3 style="color:var(--set1)">📝 Set 1 — MCQ <span class="badge" style="background:var(--set1)">25 Qs</span></h3>
+      <p>Multiple choice questions covering all syntax topics. Select the correct answer and get instant feedback.</p>
+    </div>
+    <div class="home-card" onclick="startTest(2)">
+      <h3 style="color:var(--set2)">🌲 Set 2 — IC Analysis <span class="badge" style="background:var(--set2)">10 Qs</span></h3>
+      <p>Multistep questions on Immediate Constituent Analysis. Build tree diagrams step by step to ultimate constituents.</p>
+    </div>
+    <div class="home-card" onclick="startTest(3)">
+      <h3 style="color:var(--set3)">🔤 Set 3 — Phrase Structure Grammar <span class="badge" style="background:var(--set3)">10 Qs</span></h3>
+      <p>Multistep questions on PSG rewrite rules, phrase types, recursion, and sentence generation.</p>
+    </div>
+    <div class="home-card" onclick="startTest(4)">
+      <h3 style="color:var(--set4)">🔄 Set 4 — TG Grammar <span class="badge" style="background:var(--set4)">10 Qs</span></h3>
+      <p>Multistep transformational derivations: passivization, negation, questions, WH-movement, and affix hopping.</p>
+    </div>
+    <div class="home-card" onclick="showDashLogin()">
+      <h3 style="color:var(--accent)">📊 Teacher Dashboard</h3>
+      <p>View student scores, attempts, and performance analytics.</p>
+    </div>
+  </div>
+  <div class="app-footer">Syntax Twin · Built for Introduction to Syntax · 2024–2026</div>
+</div>
+
+<!-- LEARN -->
+<div id="learnScreen" class="screen">
+  <div class="nav-back"><button class="btn btn-outline btn-sm" onclick="goHome()">← Back</button></div>
+  <h2 style="color:var(--accent);margin-bottom:4px;">📚 Learn Syntax</h2>
+  <p style="color:var(--muted);font-size:.88rem;margin-bottom:16px;">Tap any topic to expand. Study these concepts before attempting the tests.</p>
+  <div id="learnContent"></div>
+</div>
+
+<!-- NAME ENTRY -->
+<div id="nameScreen" class="screen">
+  <div class="nav-back"><button class="btn btn-outline btn-sm" onclick="goHome()">← Back</button></div>
+  <div class="name-form">
+    <h2>Enter Your Details</h2>
+    <p>Your name and roll number will be recorded with your test results.</p>
+    <input type="text" id="studentRollNo" placeholder="Roll No (e.g. 2024ENG001)" maxlength="50">
+    <input type="text" id="studentName" placeholder="Full Name" maxlength="100">
+    <br>
+    <button class="btn btn-primary" onclick="beginTest()">Start Test</button>
+  </div>
+</div>
+
+<!-- TEST SCREEN (shared for all sets) -->
+<div id="testScreen" class="screen">
+  <div class="nav-back">
+    <button class="btn btn-outline btn-sm" onclick="confirmExit()">← Exit Test</button>
+    <span style="float:right;color:var(--muted);font-size:.85rem" id="testProgress">0/0</span>
+  </div>
+  <h2 style="color:var(--accent);margin-bottom:4px;" id="testTitle"></h2>
+  <p style="color:var(--muted);font-size:.85rem;margin-bottom:4px;" id="testSubtitle"></p>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="testBar" style="width:0%"></div></div>
+  <div id="testContent"></div>
+  <div style="text-align:center;margin-top:20px;">
+    <button class="btn btn-primary" id="testSubmitBtn" onclick="finishTest()" style="display:none;">Submit Test & View Results</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="resultsScreen" class="screen">
+  <div class="nav-back"><button class="btn btn-outline btn-sm" onclick="goHome()">← Home</button></div>
+  <div id="resultsContent"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardScreen" class="screen">
+  <div class="nav-back"><button class="btn btn-outline btn-sm" onclick="goHome()">← Home</button></div>
+  <div id="dashContent"></div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyDvZ3m4FfYambFuLSMjuOPqTQfXj42WElBLGXxTqiHeKCRClFRY_ShJsnw4cAqfzmE/exec';
+const DASH_USER = 'admin';
+const DASH_PASS = 'syn2024';
+
+// ===== STATE =====
+let currentSet = null;
+let studentName = '';
+let studentRollNo = '';
+let testAnswered = 0;
+let testCorrect = 0;
+let testResults = [];
+let testData = [];
+
+// ===== TOPICS =====
+const TOPICS = {
+  what_is_syntax: { name: 'What is Syntax?', icon: '📖' },
+  trad_grammar: { name: 'Traditional vs Descriptive', icon: '📜' },
+  evolution: { name: 'Evolution of Syntax', icon: '🔬' },
+  structure: { name: 'Sentence Structure', icon: '🏗️' },
+  lexical_cat: { name: 'Lexical Categories', icon: '🏷️' },
+  simple_grammar: { name: 'Simple Grammar', icon: '📐' },
+  ic_analysis: { name: 'IC Analysis', icon: '🌲' },
+  psg: { name: 'Phrase Structure Grammar', icon: '🔤' },
+  psg_limits: { name: 'PSG Limitations', icon: '⚠️' },
+  tg_grammar: { name: 'TG Grammar', icon: '🔄' },
+  transformations: { name: 'Transformations', icon: '🔃' },
+  four_ops: { name: 'Four Operations', icon: '🛠️' },
+  comp_perf: { name: 'Competence & Performance', icon: '🧠' },
+  deep_surface: { name: 'Deep & Surface Structure', icon: '🔍' }
+};
+
+// ===== LEARN DATA =====
+const LEARN_DATA = [
+  { topic:'what_is_syntax', title:'1. What is Syntax?',
+    content:`<p><strong>Syntax</strong> is the study of how words are arranged into phrases, clauses, and sentences, and of the rules behind these arrangements. The term comes from the Greek <em>syntaxis</em>, meaning "arrangement."</p>
+<p>Word order in English is strict: "The dog chased the cat" is grammatical, but "Chased dog the cat the" is not. Most of this knowledge is unconscious.</p>
+<p>Syntax also explains the <strong>creativity of language</strong>: with a finite set of words and rules, speakers can build an unlimited number of new sentences.</p>
+<div class="key-point"><strong>Key Point:</strong> Syntax studies the rules governing how words combine into larger units — phrases, clauses, and sentences. It is about structure, not individual word meanings.</div>`},
+  { topic:'trad_grammar', title:'2. Syntax and Traditional Grammar',
+    content:`<p>The grammar taught in schools is often <strong>prescriptive</strong>, but modern syntax is <strong>descriptive</strong>.</p>
+<ul><li><strong>Prescriptive grammar</strong> says how people <em>should</em> speak and write, and treats anything else as an error.</li>
+<li><strong>Descriptive grammar</strong> says how people <em>actually</em> speak, without calling natural usage "wrong." This is the linguist's approach.</li></ul>
+<div class="example"><strong>Example:</strong> "He don't know nothing" is prescriptively wrong (double negative) but descriptively valid — it follows a systematic rule in many English dialects.</div>`},
+  { topic:'evolution', title:'3. A Brief Evolution of Syntax',
+    content:`<ul><li><strong>Traditional grammar (Greek and Latin):</strong> focused on parts of speech, parsing, and rules of correctness.</li>
+<li><strong>Structuralism (Saussure; Bloomfield):</strong> made linguistics strictly descriptive and developed IC analysis.</li>
+<li><strong>Generative grammar (Chomsky, 1957):</strong> proposed rules that generate all and only the grammatical sentences of a language — phrase structure rules, transformations, deep and surface structure.</li></ul>
+<div class="key-point"><strong>Key Point:</strong> Chomsky's <em>Syntactic Structures</em> (1957) revolutionized linguistics by proposing a formal system of rules capable of generating every grammatical sentence — and no ungrammatical ones.</div>`},
+  { topic:'structure', title:'4. Structure: Sentence, Clause, Phrase, Word',
+    content:`<p>The central idea in syntax is <strong>structure</strong>. Structure is hierarchical — parts contain smaller parts:</p>
+<div class="example">Sentence > Clause > Phrase > Word</div>
+<p>A <strong>clause</strong> has a subject and a verb; it may stand alone (independent clause) or be part of a larger clause (subordinate/dependent clause).</p>
+<div class="example"><strong>Example:</strong> "I hope that [the weather is lovely today]." — The bracketed part is a subordinate clause embedded inside the main clause.</div>`},
+  { topic:'lexical_cat', title:'5. Lexical Categories (Parts of Speech)',
+    content:`<p>Words are sorted into categories using three tests:</p>
+<ul><li><strong>Meaning:</strong> N = entity, V = action, A = property, Adv = manner (unreliable)</li>
+<li><strong>Form (morphology):</strong> nouns take -(e)s; verbs take -ed and -s; adjectives take -er/-est (partly reliable)</li>
+<li><strong>Function / Distribution (most reliable):</strong> "read the ____ book" takes an adjective</li></ul>
+<p><strong>Lexical categories:</strong> Noun (N), Verb (V), Adjective (A), Adverb (Adv), Preposition (P)</p>
+<p><strong>Functional categories:</strong> Determiners (the, a, my), Conjunctions (and, but), Complementizers (that, if), Auxiliaries (will, can, have, be)</p>`},
+  { topic:'simple_grammar', title:'6. A Simple Grammar with Lexical Categories',
+    content:`<p>A very simple grammar uses a single flat rule:</p>
+<div class="example">S → Det (A) N V Det (A) N</div>
+<p>This can generate "A tall man kicked the ball." But it hangs every word directly under S — it cannot show how words group together.</p>
+<div class="example"><strong>Problem:</strong> "The mother of the boy and the girl is/are arriving" changes meaning depending on grouping. A flat grammar cannot capture this.</div>
+<p>To capture groupings, we need the idea of a <strong>constituent</strong>.</p>`},
+  { topic:'ic_analysis', title:'7. Immediate Constituent (IC) Analysis',
+    content:`<p>A <strong>constituent</strong> is a group of words that belongs together and functions as a single unit. IC analysis cuts a sentence into its immediate constituents — first into two main parts, then each part again — until we reach the <strong>ultimate constituents</strong> (individual words).</p>
+<div class="example"><strong>Example:</strong> "The old man read the book"<br>
+First cut: [The old man] | [read the book] → NP | VP<br>
+Then: [The old man] → The | old | man<br>
+And: [read the book] → read | [the book] → the | book</div>
+<h4>Methods of IC Analysis</h4>
+<ul><li><strong>(a) Labelled bracketing:</strong> [S [NP [Det The] [A old] [N man]] [VP [V read] [NP [Det the] [N book]]]]</li>
+<li><strong>(b) Tree diagram:</strong> branches showing hierarchy from words to the sentence node</li>
+<li><strong>(c) Box (Chinese-box) diagram:</strong> nested boxes showing containment</li></ul>
+<div class="key-point"><strong>Merit:</strong> IC analysis clearly shows hierarchy and constituency.<br><strong>Limitation:</strong> A single IC diagram cannot show the two meanings of an ambiguous sentence.</div>`},
+  { topic:'psg', title:'8. Phrase Structure Grammar (PSG)',
+    content:`<p>PSG is a set of <strong>rewrite rules</strong> that show how phrases are built:</p>
+<div class="example">S → NP VP<br>NP → (Det) (A) N (PP)<br>VP → V (NP) (PP)<br>PP → P NP</div>
+<h4>Phrase Examples</h4>
+<ul><li><strong>NP:</strong> Mary, the students, the tall student, the students from India</li>
+<li><strong>VP:</strong> snored, loved music, walked the dog through the park</li>
+<li><strong>PP:</strong> in the class, on the table, from India</li></ul>
+<p><strong>Recursion:</strong> Because a phrase can contain another phrase (NP inside PP inside NP...), the rules feed back into themselves, letting finite rules generate infinite sentences.</p>
+<div class="key-point"><strong>Key Point — Recursion:</strong> "The cat sat on [the mat in [the room near [the garden]]]" — the PP rule keeps reapplying.</div>`},
+  { topic:'psg_limits', title:'9. Limitations of PSG',
+    content:`<ul><li><strong>Cannot relate related sentences:</strong> Active and passive ("The dog chased the cat" / "The cat was chased by the dog") are clearly related, but PSG generates each by separate rules.</li>
+<li><strong>Cannot connect statements, negatives, questions:</strong> "The boy hit the ball" / "The boy did not hit the ball" / "Did the boy hit the ball?" need separate rules.</li>
+<li><strong>Handles ambiguity poorly:</strong> one string with two meanings may get a single structure.</li>
+<li><strong>Not economical:</strong> needs very many rules to cover all sentence types.</li></ul>
+<div class="key-point"><strong>Conclusion:</strong> PS rules alone are not enough. We need transformational rules.</div>`},
+  { topic:'tg_grammar', title:'10. TG Grammar',
+    content:`<p>Chomsky's <strong>Transformational-Generative (TG)</strong> grammar works in two stages: PS rules build an underlying structure, then transformational rules reshape it.</p>
+<h4>Kernel Sentences (SAAD)</h4>
+<p>A kernel sentence is Simple, Active, Affirmative, Declarative:</p>
+<div class="example"><strong>Kernel:</strong> "The boy hit the ball." ✓<br>
+<strong>Not kernel:</strong> "The ball was hit by the boy." (passive) ✗<br>
+<strong>Not kernel:</strong> "Did the boy hit the ball?" (interrogative) ✗</div>
+<h4>The Auxiliary (Aux) Rule</h4>
+<div class="example">Aux → C (M) (have + en) (be + ing)<br>
+C → past / present<br><br>
+C = Tense · M = Modal (will, can, shall, may, must)<br>
+en = past participle (-ed/-en) · ing = progressive (-ing)</div>
+<h4>Complete PS Rules (Chomsky 1957)</h4>
+<div class="example">S → NP + Aux + VP<br>VP → V + (NP)<br>NP → (Det) + (A) + N<br>Aux → C (M) (have + en) (be + ing)<br>C → past / present</div>
+<p>These generate the <strong>Deep Structure (D-Structure)</strong>.</p>`},
+  { topic:'transformations', title:'11. Transformational Rules',
+    content:`<h4>11.1 Passivization (T-PASS)</h4>
+<div class="example">NP₁ + Aux + V + NP₂ → NP₂ + Aux + be + en + V + by + NP₁<br><br>
+Step 1 — Permutation: Swap NP₁ and NP₂<br>
+Step 2 — Addition: Insert "be + en" and "by"<br>
+Step 3 — Affix Hopping & Realization<br>
+⇒ "The cat was chased by the dog."</div>
+<h4>11.2 Negation (T-NEG)</h4>
+<div class="example">Add "not" after first auxiliary. If no auxiliary → do-support.<br>
+⇒ "The dog did not chase the cat."</div>
+<h4>11.3 Yes/No Question (T-QUES)</h4>
+<div class="example">Move auxiliary/tense to front (subject-aux inversion). If no auxiliary → do-support.<br>
+⇒ "Did the dog chase the cat?"</div>
+<h4>11.4 WH-Transformation (T-WH)</h4>
+<div class="example">Step 1: Substitute WH-word for questioned NP<br>
+Step 2: WH-Fronting<br>
+Step 3: Subject-Aux Inversion + Do-Support<br>
+⇒ "What did the dog chase?"</div>
+<h4>11.5 Affix Hopping (Obligatory)</h4>
+<div class="example">Rule: Affix + Verb → Verb + Affix<br>
+past + kick → kicked · ing + dance → dancing</div>
+<div class="key-point"><strong>Key Point:</strong> Affix hopping is the ONLY obligatory transformation. All others are optional.</div>`},
+  { topic:'four_ops', title:'12. The Four Operations of Transformations',
+    content:`<ul><li><strong>Permutation (Movement):</strong> Rearranging element order — passivization, WH-fronting, subject-aux inversion</li>
+<li><strong>Addition (Insertion):</strong> Introducing new elements — "not" in negation, "be + en" and "by" in passive, "do" in do-support</li>
+<li><strong>Deletion:</strong> Removing elements — deleting "you" in imperatives, relative clause reduction</li>
+<li><strong>Substitution:</strong> Replacing one element with another — WH-words replacing NPs, pronominalization</li></ul>`},
+  { topic:'comp_perf', title:'13. Competence and Performance',
+    content:`<ul><li><strong>Competence:</strong> the unconscious, internalized knowledge of language — the complete system of rules stored in the mind.</li>
+<li><strong>Performance:</strong> the actual use of language in real situations — full of slips, hesitations, and errors.</li></ul>
+<div class="example"><strong>Example:</strong> "The — er — the cat, um, sat on the mat" — hesitations are performance errors; the underlying competence is intact.</div>
+<div class="key-point"><strong>Key Point:</strong> Modern syntax aims to describe competence — the mental grammar — not the messy details of performance.</div>`},
+  { topic:'deep_surface', title:'14. Deep Structure and Surface Structure',
+    content:`<p><strong>Deep Structure (D-Structure):</strong> the abstract underlying form carrying basic meaning. Generated by PS rules.</p>
+<p><strong>Surface Structure (S-Structure):</strong> the form we actually speak or write — the output after transformations.</p>
+<h4>One surface form, two deep structures (ambiguity):</h4>
+<div class="example">"Flying planes can be dangerous."<br>
+DS 1: [The act of flying planes] can be dangerous<br>
+DS 2: [Planes that are flying] can be dangerous</div>
+<h4>Two surface forms, one deep structure:</h4>
+<div class="example">"The dog chased the cat." (active)<br>
+"The cat was chased by the dog." (passive)<br>
+Both derive from the same deep structure.</div>
+<h4>Similar surface, different deep structures:</h4>
+<div class="example">"John is eager to please." → John pleases others (agent)<br>
+"John is easy to please." → Others please John (patient)</div>
+<h4>Grammatical but meaningless:</h4>
+<div class="example">"Colorless green ideas sleep furiously." (Chomsky, 1957)<br>
+Perfectly grammatical but semantically nonsensical — syntax is separate from meaning.</div>`}
+];
+
+// ===== SET 1: 25 MCQ =====
+const mcqData = [
+  { q:"What does syntax study?", options:["Sound patterns in language","Meaning in language","How words are arranged into phrases, clauses, and sentences","Word formation (morphology)"], correct:2, explain:"Syntax is the study of how words are arranged into phrases, clauses, and sentences, and the rules behind these arrangements.", topic:'what_is_syntax' },
+  { q:"The term 'syntax' comes from the Greek word meaning:", options:["'Sound pattern'","'Word formation'","'Arrangement' or 'putting together'","'Deep meaning'"], correct:2, explain:"'Syntax' comes from the Greek syntaxis, meaning 'arrangement' or 'putting together.'", topic:'what_is_syntax' },
+  { q:"Which approach to grammar describes how people actually speak, without calling natural usage 'wrong'?", options:["Prescriptive grammar","Descriptive grammar","Traditional grammar","Normative grammar"], correct:1, explain:"Descriptive grammar describes how people actually speak. Modern syntax is descriptive — it models the unconscious knowledge in a speaker's mind.", topic:'trad_grammar' },
+  { q:"Who proposed generative grammar with phrase structure rules and transformations?", options:["Ferdinand de Saussure","Leonard Bloomfield","Noam Chomsky","Roman Jakobson"], correct:2, explain:"Noam Chomsky proposed generative grammar in Syntactic Structures (1957), introducing phrase structure rules, transformations, and the competence/performance distinction.", topic:'evolution' },
+  { q:"Which is the correct hierarchical ordering from largest to smallest?", options:["Word > Phrase > Clause > Sentence","Sentence > Clause > Phrase > Word","Phrase > Sentence > Word > Clause","Clause > Sentence > Word > Phrase"], correct:1, explain:"The hierarchy is: Sentence > Clause > Phrase > Word. Each level contains the ones below it.", topic:'structure' },
+  { q:"Which test for identifying parts of speech is considered the MOST reliable?", options:["Meaning test","Form (morphology) test","Function / Distribution test","Origin test"], correct:2, explain:"The function/distribution test is most reliable: place a word in a 'frame' with a blank and see which category fits — e.g., 'read the ____ book' takes an adjective.", topic:'lexical_cat' },
+  { q:"Which of the following is a FUNCTIONAL (not lexical) category?", options:["Noun","Verb","Determiner","Adjective"], correct:2, explain:"Determiners (the, a, my) are functional categories. Nouns, verbs, and adjectives are lexical categories.", topic:'lexical_cat' },
+  { q:"What is a constituent?", options:["Any single word in a sentence","A group of words that functions as a single unit","The subject of a sentence","A type of morpheme"], correct:1, explain:"A constituent is a group of words that belongs together and functions as a single unit within a larger structure.", topic:'ic_analysis' },
+  { q:"In IC analysis, the individual words at the end of the cutting process are called:", options:["Immediate constituents","Terminal nodes","Ultimate constituents","Root constituents"], correct:2, explain:"The individual words reached at the end of IC analysis are the ultimate constituents. The intermediate groupings are immediate constituents.", topic:'ic_analysis' },
+  { q:"Which method of IC analysis uses brackets with category labels like [NP [Det The] [N man]]?", options:["Tree diagram","Box diagram","Labelled bracketing","Slot-and-filler"], correct:2, explain:"Labelled bracketing encloses each constituent in brackets with its category label.", topic:'ic_analysis' },
+  { q:"In PSG, what does the rule S → NP VP mean?", options:["A sentence can optionally contain a noun phrase","A sentence consists of a noun phrase followed by a verb phrase","A noun phrase generates a sentence","A verb phrase is the same as a sentence"], correct:1, explain:"S → NP VP means a sentence (S) consists of a Noun Phrase (NP) followed by a Verb Phrase (VP). This is the modern form of 'subject + predicate.'", topic:'psg' },
+  { q:"In the rule NP → (Det) (A) N (PP), the parentheses indicate that:", options:["The elements are required","The elements are optional","The elements must appear in any order","The elements are deleted"], correct:1, explain:"Parentheses in PSG rules indicate optional elements. Only N (the noun) is obligatory in an NP.", topic:'psg' },
+  { q:"The property that allows phrases to contain other phrases of the same type (NP inside PP inside NP...) is called:", options:["Ambiguity","Transformation","Recursion","Derivation"], correct:2, explain:"Recursion is the property where rules feed back into themselves, allowing phrases within phrases indefinitely. It lets finite rules generate infinite sentences.", topic:'psg' },
+  { q:"Which is NOT a limitation of Phrase Structure Grammar?", options:["Cannot relate active and passive sentences","Cannot connect statements, negatives, and questions","Cannot generate basic sentence structures","Handles ambiguity poorly"], correct:2, explain:"PSG CAN generate basic sentence structures very well. Its limitations are relating sentence variants, connecting sentence types, handling ambiguity, and economy.", topic:'psg_limits' },
+  { q:"What does SAAD stand for in TG grammar?", options:["Systematic, Analytical, Abstract, Derivational","Simple, Active, Affirmative, Declarative","Structural, Autonomous, Ambiguous, Descriptive","Syntactic, Auxiliary, Affix, Deep"], correct:1, explain:"SAAD = Simple, Active, Affirmative, Declarative — the properties of a kernel sentence.", topic:'tg_grammar' },
+  { q:"In the Aux rule: Aux → C (M) (have + en) (be + ing), what does C represent?", options:["Complementizer","Conjunction","Tense (Concordance: past/present)","Category"], correct:2, explain:"C represents tense (Concordance) — either past or present. Every English sentence must have tense.", topic:'tg_grammar' },
+  { q:"What are the two stages of a TG grammar?", options:["Lexical rules and phonological rules","Phrase structure rules and transformational rules","Deep rules and surface rules","Kernel rules and complex rules"], correct:1, explain:"A TG grammar works in two stages: (1) PS rules build the deep structure, then (2) transformational rules reshape it into the surface structure.", topic:'tg_grammar' },
+  { q:"In passivization, which three operations are involved?", options:["Deletion, substitution, addition","Permutation, addition, morphophonemic realization","Substitution, deletion, movement","Addition, deletion, recursion"], correct:1, explain:"Passivization involves: (1) Permutation — swap NP₁ and NP₂; (2) Addition — insert 'be + en' and 'by'; (3) Morphophonemic realization — affix hopping.", topic:'transformations' },
+  { q:"When is do-support triggered?", options:["Whenever a sentence has a modal","When a tense affix is left stranded with no verbal host","When the sentence is in the passive voice","When there is a WH-word in the sentence"], correct:1, explain:"Do-support is triggered when a tense affix is stranded — it cannot attach to a verb because 'not' or subject-auxiliary inversion blocks it. The dummy 'do' carries the tense.", topic:'transformations' },
+  { q:"Which transformation is the ONLY obligatory one in classical TG grammar?", options:["Passivization","Negation","Affix hopping (flip-flop)","WH-transformation"], correct:2, explain:"Affix hopping is the only obligatory transformation. Passivization, negation, and question formation are all optional.", topic:'transformations' },
+  { q:"In WH-transformation, when the WH-word replaces the subject ('Who hit the ball?'), what happens?", options:["Do-support is triggered","Subject-auxiliary inversion occurs","No inversion occurs — the WH-word is already in subject position","The sentence becomes passive"], correct:2, explain:"When the WH-word replaces the subject itself, it is already in subject position, so no subject-auxiliary inversion occurs.", topic:'transformations' },
+  { q:"Which of the four operations involves rearranging the order of elements?", options:["Addition","Deletion","Substitution","Permutation"], correct:3, explain:"Permutation (movement) involves rearranging the order of elements. It is used in passivization, WH-fronting, and subject-auxiliary inversion.", topic:'four_ops' },
+  { q:"Chomsky's distinction between competence and performance means:", options:["Competence is actual speech; performance is mental knowledge","Competence is unconscious language knowledge; performance is actual language use","Competence is written language; performance is spoken language","Both refer to the same thing"], correct:1, explain:"Competence is the unconscious, internalized knowledge of language. Performance is the actual use of language, with all its errors and hesitations.", topic:'comp_perf' },
+  { q:"'Flying planes can be dangerous' has two interpretations. This is explained by:", options:["Two different surface structures","Two different deep structures mapping to one surface structure","Two different lexical categories","Performance errors"], correct:1, explain:"This sentence has two deep structures (the act of flying vs. planes that are flying) that map to the same surface structure — a key argument for the deep/surface distinction.", topic:'deep_surface' },
+  { q:"The sentence 'Colorless green ideas sleep furiously' (Chomsky) demonstrates that:", options:["Syntax and semantics are the same system","A sentence can be grammatical but meaningless","Performance errors cause ambiguity","All sentences must be meaningful"], correct:1, explain:"This famous sentence follows all syntactic rules perfectly but is semantically nonsensical — proving that syntax is a separate system from meaning.", topic:'deep_surface' }
+];
+
+// ===== SET 2: IC ANALYSIS (10 multistep) =====
+const icData = [
+  { q:"Analyze: 'The tall boy kicked the ball'", context:"Perform IC analysis by identifying constituents step by step.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:3,w:'The'},{l:'A',s:3,w:'tall'},{l:'N',s:3,w:'boy'}]},{l:'VP',s:1,c:[{l:'V',s:4,w:'kicked'},{l:'NP',s:4,c:[{l:'Det',s:5,w:'the'},{l:'N',s:5,w:'ball'}]}]}]},
+    steps:[
+      { prompt:"What is the FIRST binary cut of this sentence?", options:["[The tall boy] | [kicked the ball]","[The tall] | [boy kicked the ball]","[The] | [tall boy kicked the ball]","[The tall boy kicked] | [the ball]"], correct:0, explain:"The first cut divides the sentence into its two main immediate constituents: the subject NP [The tall boy] and the VP [kicked the ball]." },
+      { prompt:"What is the category of [The tall boy]?", options:["VP (Verb Phrase)","PP (Prepositional Phrase)","NP (Noun Phrase)","S (Sentence)"], correct:2, explain:"[The tall boy] is a Noun Phrase (NP) — it functions as the subject of the sentence." },
+      { prompt:"Now cut [The tall boy] into its immediate constituents:", options:["The | tall | boy (all separate)","The | tall boy","The tall | boy","The | tall + boy"], correct:0, explain:"At the ultimate constituent level: Det 'The' + A 'tall' + N 'boy'. Each word is an ultimate constituent." },
+      { prompt:"Cut the VP [kicked the ball] into its immediate constituents:", options:["kicked | the ball","kick | ed | the | ball","kicked the | ball","kicked | the | ball"], correct:0, explain:"The VP splits into V 'kicked' and NP 'the ball'." },
+      { prompt:"What are the ultimate constituents of [the ball]?", options:["the ball (one unit)","the | ball","th | e | ball","Det ball"], correct:1, explain:"The NP [the ball] splits into Det 'the' + N 'ball'. These are the ultimate constituents." }
+    ], topic:'ic_analysis' },
+  { q:"Analyze: 'The cat sat on the mat'", context:"This sentence contains a prepositional phrase. Identify constituents step by step.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:1,w:'The'},{l:'N',s:1,w:'cat'}]},{l:'VP',s:1,c:[{l:'V',s:2,w:'sat'},{l:'PP',s:2,c:[{l:'P',s:4,w:'on'},{l:'NP',s:4,c:[{l:'Det',s:5,w:'the'},{l:'N',s:5,w:'mat'}]}]}]}]},
+    steps:[
+      { prompt:"What is the first binary cut?", options:["[The cat] | [sat on the mat]","[The cat sat] | [on the mat]","[The] | [cat sat on the mat]","[The cat sat on] | [the mat]"], correct:0, explain:"First cut: NP [The cat] | VP [sat on the mat]." },
+      { prompt:"Cut the VP [sat on the mat] into its immediate constituents:", options:["sat | on | the | mat","sat on | the mat","sat | on the mat","sat | on | the mat"], correct:2, explain:"The VP splits into V 'sat' and PP 'on the mat'." },
+      { prompt:"What type of phrase is [on the mat]?", options:["NP (Noun Phrase)","VP (Verb Phrase)","PP (Prepositional Phrase)","AP (Adjective Phrase)"], correct:2, explain:"[on the mat] is a Prepositional Phrase (PP) — it starts with preposition 'on' followed by NP 'the mat'." },
+      { prompt:"Cut [on the mat] into its immediate constituents:", options:["on the | mat","on | the mat","on | the | mat","o | n | the mat"], correct:1, explain:"PP → P 'on' + NP 'the mat'." },
+      { prompt:"What is the correct labelled bracketing for this entire sentence?", options:["[S [NP [Det The] [N cat]] [VP [V sat] [PP [P on] [NP [Det the] [N mat]]]]]","[S [NP The cat] [VP sat on the mat]]","[S [Det The] [N cat] [V sat] [P on] [Det the] [N mat]]","[S [NP [Det The] [N cat]] [VP [V sat] [NP [P on] [Det the] [N mat]]]]"], correct:0, explain:"The full bracketing shows S containing NP and VP, with the PP properly nested inside the VP." }
+    ], topic:'ic_analysis' },
+  { q:"Analyze: 'She read a good book'", context:"Identify each constituent from sentence level to ultimate constituents.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Pro',s:2,w:'She'}]},{l:'VP',s:1,c:[{l:'V',s:3,w:'read'},{l:'NP',s:3,c:[{l:'Det',s:4,w:'a'},{l:'A',s:4,w:'good'},{l:'N',s:4,w:'book'}]}]}]},
+    steps:[
+      { prompt:"What is the first binary cut?", options:["[She read] | [a good book]","[She] | [read a good book]","[She read a] | [good book]","[She] | [read] | [a good book]"], correct:1, explain:"First cut: NP [She] | VP [read a good book]. The subject NP here is just a pronoun." },
+      { prompt:"What kind of NP is [She]?", options:["A full NP with determiner and noun","A pronoun functioning as NP","A proper noun","A verb"], correct:1, explain:"'She' is a pronoun that functions as a complete NP by itself — no determiner or modifier needed." },
+      { prompt:"Cut [read a good book] into its immediate constituents:", options:["read | a | good | book","read a | good book","read | a good book","read good | a book"], correct:2, explain:"VP → V 'read' + NP 'a good book'." },
+      { prompt:"Now cut [a good book] — what are its parts?", options:["a | good book","a good | book","a | good | book","Det + A + N: a, good, book"], correct:3, explain:"NP → Det 'a' + A 'good' + N 'book'. These three words are the ultimate constituents of this NP." }
+    ], topic:'ic_analysis' },
+  { q:"Analyze: 'The students from India studied hard'", context:"This NP contains a prepositional phrase modifier.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:3,w:'The'},{l:'N',s:3,w:'students'},{l:'PP',s:3,c:[{l:'P',s:3,w:'from'},{l:'NP',s:3,c:[{l:'N',s:3,w:'India'}]}]}]},{l:'VP',s:1,c:[{l:'V',s:4,w:'studied'},{l:'Adv',s:4,w:'hard'}]}]},
+    steps:[
+      { prompt:"What is the first cut?", options:["[The students from India] | [studied hard]","[The students] | [from India studied hard]","[The students from] | [India studied hard]","[The] | [students from India studied hard]"], correct:0, explain:"NP [The students from India] | VP [studied hard]. The subject NP includes the PP modifier." },
+      { prompt:"In the NP [The students from India], what is [from India]?", options:["An adjective","An adverb","A prepositional phrase modifying the noun","Another noun phrase"], correct:2, explain:"[from India] is a PP (Prepositional Phrase) that modifies the noun 'students'." },
+      { prompt:"Cut the NP [The students from India]:", options:["The | students | from India","The | students from India","The students | from India","The | students + from + India"], correct:2, explain:"NP → Det 'The' + N 'students' + PP 'from India'. The PP is an optional modifier within NP." },
+      { prompt:"Cut the VP [studied hard]:", options:["studied | hard","studi | ed | hard","studied hard (cannot be cut)","study | ed | hard"], correct:0, explain:"VP → V 'studied' + Adv 'hard'." }
+    ], topic:'ic_analysis' },
+  { q:"Analyze: 'The boy hit the ball with a bat'", context:"Identify constituents — note the ambiguity in PP attachment.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:1,w:'The'},{l:'N',s:1,w:'boy'}]},{l:'VP',s:1,c:[{l:'V',s:3,w:'hit'},{l:'NP',s:3,c:[{l:'Det',s:3,w:'the'},{l:'N',s:3,w:'ball'}]},{l:'PP',s:3,c:[{l:'P',s:3,w:'with'},{l:'NP',s:3,c:[{l:'Det',s:3,w:'a'},{l:'N',s:3,w:'bat'}]}]}]}]},
+    steps:[
+      { prompt:"First binary cut:", options:["[The boy] | [hit the ball with a bat]","[The boy hit] | [the ball with a bat]","[The boy hit the ball] | [with a bat]","[The] | [boy hit the ball with a bat]"], correct:0, explain:"NP [The boy] | VP [hit the ball with a bat]." },
+      { prompt:"In the VP, where does [with a bat] attach?", options:["To the subject NP","To the whole sentence","To the VP (it modifies how the hitting was done)","To the determiner"], correct:2, explain:"The PP [with a bat] attaches to the VP — it describes the instrument of hitting." },
+      { prompt:"Cut [hit the ball with a bat] into immediate constituents:", options:["hit | the ball with a bat","hit | the ball | with a bat","hit the ball | with a bat","hit | the | ball | with | a | bat"], correct:1, explain:"VP → V 'hit' + NP 'the ball' + PP 'with a bat'." },
+      { prompt:"What is the full labelled bracketing?", options:["[S [NP [Det The] [N boy]] [VP [V hit] [NP [Det the] [N ball]] [PP [P with] [NP [Det a] [N bat]]]]]","[S [NP The boy] [VP hit the ball with a bat]]","[S [NP [Det The] [N boy]] [V hit] [NP the ball] [PP with a bat]]","[S The boy hit the ball with a bat]"], correct:0, explain:"The full bracketing shows the hierarchical structure with PP inside VP." }
+    ], topic:'ic_analysis' },
+  { q:"Analyze: 'Mary loves John'", context:"A simple transitive sentence with proper nouns.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'N',s:2,w:'Mary'}]},{l:'VP',s:1,c:[{l:'V',s:3,w:'loves'},{l:'NP',s:3,c:[{l:'N',s:3,w:'John'}]}]}]},
+    steps:[
+      { prompt:"First binary cut:", options:["[Mary] | [loves John]","[Mary loves] | [John]","Mary | loves | John","[Mary] | [loves] | [John]"], correct:0, explain:"NP [Mary] | VP [loves John]." },
+      { prompt:"The NP [Mary] is:", options:["A determiner + noun","A proper noun functioning as a complete NP","An adjective","A pronoun"], correct:1, explain:"Proper nouns like 'Mary' function as complete NPs by themselves — no determiner needed." },
+      { prompt:"Cut [loves John]:", options:["loves | John","love | s | John","loves John (cannot be cut)","lov | es | John"], correct:0, explain:"VP → V 'loves' + NP 'John'." }
+    ], topic:'ic_analysis' },
+  { q:"Analyze: 'A happy child played in the garden'", context:"Contains both an adjective modifier and a PP.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:2,w:'A'},{l:'A',s:2,w:'happy'},{l:'N',s:2,w:'child'}]},{l:'VP',s:1,c:[{l:'V',s:3,w:'played'},{l:'PP',s:3,c:[{l:'P',s:4,w:'in'},{l:'NP',s:4,c:[{l:'Det',s:4,w:'the'},{l:'N',s:4,w:'garden'}]}]}]}]},
+    steps:[
+      { prompt:"First binary cut:", options:["[A happy child] | [played in the garden]","[A happy] | [child played in the garden]","[A happy child played] | [in the garden]","[A] | [happy child played in the garden]"], correct:0, explain:"NP [A happy child] | VP [played in the garden]." },
+      { prompt:"Cut the NP [A happy child]:", options:["A | happy child","A happy | child","A | happy | child","A + happy + child (Det + A + N)"], correct:3, explain:"NP → Det 'A' + A 'happy' + N 'child'." },
+      { prompt:"Cut the VP [played in the garden]:", options:["played in | the garden","played | in the garden","played | in | the garden","play | ed | in the garden"], correct:1, explain:"VP → V 'played' + PP 'in the garden'." },
+      { prompt:"Cut the PP [in the garden]:", options:["in the | garden","in | the garden","in | the | garden","i | n | the garden"], correct:1, explain:"PP → P 'in' + NP 'the garden'." }
+    ], topic:'ic_analysis' },
+  { q:"Analyze: 'The dog chased the cat'", context:"The classic kernel sentence used throughout TG grammar.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:1,w:'The'},{l:'N',s:1,w:'dog'}]},{l:'VP',s:1,c:[{l:'V',s:2,w:'chased'},{l:'NP',s:2,c:[{l:'Det',s:3,w:'the'},{l:'N',s:3,w:'cat'}]}]}]},
+    steps:[
+      { prompt:"First binary cut:", options:["[The dog chased] | [the cat]","[The dog] | [chased the cat]","[The] | [dog chased the cat]","The | dog | chased | the | cat"], correct:1, explain:"NP [The dog] | VP [chased the cat]." },
+      { prompt:"Cut [chased the cat]:", options:["chased | the | cat","chased the | cat","chased | the cat","chase | d | the cat"], correct:2, explain:"VP → V 'chased' + NP 'the cat'." },
+      { prompt:"What are ALL the ultimate constituents?", options:["The, dog, chased, the, cat","The dog, chased, the cat","The, dog, chase, -ed, the, cat","Det, N, V, Det, N"], correct:0, explain:"The five ultimate constituents (individual words) are: The, dog, chased, the, cat." }
+    ], topic:'ic_analysis' },
+  { q:"Analyze: 'The old woman sat on the bench near the park'", context:"Multiple PPs — show the nesting.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:1,w:'The'},{l:'A',s:1,w:'old'},{l:'N',s:1,w:'woman'}]},{l:'VP',s:1,c:[{l:'V',s:2,w:'sat'},{l:'PP',s:2,c:[{l:'P',s:2,w:'on'},{l:'NP',s:2,c:[{l:'Det',s:2,w:'the'},{l:'N',s:2,w:'bench'},{l:'PP',s:3,c:[{l:'P',s:3,w:'near'},{l:'NP',s:3,c:[{l:'Det',s:3,w:'the'},{l:'N',s:3,w:'park'}]}]}]}]}]}]},
+    steps:[
+      { prompt:"First binary cut:", options:["[The old woman] | [sat on the bench near the park]","[The old woman sat] | [on the bench near the park]","[The old] | [woman sat on the bench near the park]","[The old woman sat on the bench] | [near the park]"], correct:0, explain:"NP [The old woman] | VP [sat on the bench near the park]." },
+      { prompt:"Cut the VP:", options:["sat | on the bench near the park","sat | on the bench | near the park","sat on | the bench near the park","sat | on | the bench | near | the park"], correct:0, explain:"VP → V 'sat' + PP 'on the bench near the park'. The whole PP is one constituent modifying the verb." },
+      { prompt:"Inside the PP, how does [near the park] relate to [on the bench]?", options:["It modifies the verb 'sat'","It is a separate PP modifying the noun 'bench' within the first PP","It is an adverb","It modifies 'old woman'"], correct:1, explain:"[near the park] is a PP embedded within the NP 'the bench near the park' — this is recursion: PP inside NP inside PP." },
+      { prompt:"This recursive nesting (PP inside NP inside PP) demonstrates:", options:["A limitation of PSG","The power of recursion in phrase structure","That IC analysis cannot work","That syntax is the same as semantics"], correct:1, explain:"Recursion lets finite rules generate infinitely complex structures — phrases within phrases within phrases." }
+    ], topic:'ic_analysis' },
+  { q:"Ambiguity: 'The mother of the boy and the girl'", context:"This phrase is structurally ambiguous. Show TWO possible IC analyses.",
+    tree:{l:'NP',s:0,c:[{l:'Det',s:0,w:'The'},{l:'N',s:0,w:'mother'},{l:'PP',s:1,c:[{l:'P',s:1,w:'of'},{l:'NP',s:1,c:[{l:'NP',s:1,c:[{l:'Det',s:1,w:'the'},{l:'N',s:1,w:'boy'}]},{l:'Conj',s:1,w:'and'},{l:'NP',s:1,c:[{l:'Det',s:1,w:'the'},{l:'N',s:1,w:'girl'}]}]}]}]},
+    tree2:{l:'NP',s:0,c:[{l:'NP',s:2,c:[{l:'Det',s:2,w:'The'},{l:'N',s:2,w:'mother'},{l:'PP',s:2,c:[{l:'P',s:2,w:'of'},{l:'NP',s:2,c:[{l:'Det',s:2,w:'the'},{l:'N',s:2,w:'boy'}]}]}]},{l:'Conj',s:2,w:'and'},{l:'NP',s:2,c:[{l:'Det',s:2,w:'the'},{l:'N',s:2,w:'girl'}]}]},
+    steps:[
+      { prompt:"Reading 1: 'The mother of [the boy and the girl]' — what does this mean?", options:["The mother belongs to the boy only","She is the mother of both the boy AND the girl","The girl is the mother","The boy and girl are unrelated"], correct:1, explain:"In Reading 1, 'the boy and the girl' is a coordinated NP — she is mother of both children." },
+      { prompt:"Reading 2: '[The mother of the boy] and [the girl]' — what does this mean?", options:["She is the mother of both","Two people: the mother-of-the-boy, and separately the girl","The girl is also a mother","The boy and the girl are one person"], correct:1, explain:"In Reading 2, there are two separate NPs joined by 'and': [the mother of the boy] and [the girl] — two different people." },
+      { prompt:"This ambiguity demonstrates a key limitation of:", options:["Transformational grammar","Single IC analysis (it cannot show both readings)","Descriptive grammar","The Aux rule"], correct:1, explain:"A single IC diagram can show only one hierarchical grouping. For an ambiguous phrase, we need two separate IC analyses — one for each reading." },
+      { prompt:"Which grammar model can better handle this ambiguity?", options:["A flat grammar with no hierarchy","PSG alone","TG grammar with deep structure (each reading has its own deep structure)","No grammar can handle this"], correct:2, explain:"TG grammar handles this with two different deep structures that map to the same surface form." }
+    ], topic:'ic_analysis' }
+];
+
+// ===== SET 3: PSG (10 multistep) =====
+const psgData = [
+  { q:"Apply PSG rules to generate: 'The boy kicked the ball'", context:"Use: S → NP VP, NP → (Det) (A) N, VP → V (NP)",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:2,w:'The'},{l:'N',s:2,w:'boy'}]},{l:'VP',s:1,c:[{l:'V',s:3,w:'kicked'},{l:'NP',s:3,c:[{l:'Det',s:4,w:'the'},{l:'N',s:4,w:'ball'}]}]}]},
+    steps:[
+      { prompt:"Start with S. Apply S → NP VP. What do we get?", options:["NP + VP","Det + N + V + Det + N","The boy + kicked the ball","S → NP VP is not applicable"], correct:0, explain:"Applying S → NP VP gives us NP + VP as the two major constituents." },
+      { prompt:"Expand the subject NP using NP → (Det) (A) N:", options:["Det + N → 'The boy'","N → 'boy'","A + N → 'tall boy'","Det + A + N → 'The tall boy'"], correct:0, explain:"For 'The boy', we select Det + N (the adjective is optional and not used here). Det → 'The', N → 'boy'." },
+      { prompt:"Expand VP using VP → V (NP). What components does 'kicked the ball' have?", options:["V only","V + NP","V + PP","V + NP + PP"], correct:1, explain:"'kicked the ball' = V 'kicked' + NP 'the ball'. The NP is the direct object." },
+      { prompt:"Now expand the object NP [the ball]:", options:["Det + A + N","Det + N → 'the ball'","N → 'ball'","Det + N + PP"], correct:1, explain:"The object NP → Det 'the' + N 'ball'. No adjective or PP modifier." }
+    ], topic:'psg' },
+  { q:"Generate: 'A tall student walked through the park'", context:"Use: S → NP VP, NP → (Det) (A) N (PP), VP → V (NP) (PP), PP → P NP",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:1,w:'A'},{l:'A',s:1,w:'tall'},{l:'N',s:1,w:'student'}]},{l:'VP',s:1,c:[{l:'V',s:2,w:'walked'},{l:'PP',s:2,c:[{l:'P',s:3,w:'through'},{l:'NP',s:3,c:[{l:'Det',s:3,w:'the'},{l:'N',s:3,w:'park'}]}]}]}]},
+    steps:[
+      { prompt:"Which optional element in NP → (Det) (A) N (PP) is used for the subject 'A tall student'?", options:["Only Det","Det and A","Det, A, and PP","Only N"], correct:1, explain:"'A tall student' uses Det 'A' + A 'tall' + N 'student'. The PP is not selected." },
+      { prompt:"The VP 'walked through the park' uses which VP rule expansion?", options:["V only (intransitive)","V + NP","V + PP","V + NP + PP"], correct:2, explain:"'walked through the park' = V 'walked' + PP 'through the park'. No direct object NP." },
+      { prompt:"Expand the PP 'through the park' using PP → P NP:", options:["P → 'through', NP → 'the park'","P → 'through the', NP → 'park'","PP → through + park","P → 'through', N → 'park'"], correct:0, explain:"PP → P 'through' + NP 'the park'. The NP then expands to Det 'the' + N 'park'." }
+    ], topic:'psg' },
+  { q:"Recursion: Explain how 'the cat on the mat in the room' works", context:"NP → (Det) (A) N (PP) and PP → P NP",
+    tree:{l:'NP',s:0,c:[{l:'Det',s:0,w:'the'},{l:'N',s:0,w:'cat'},{l:'PP',s:1,c:[{l:'P',s:1,w:'on'},{l:'NP',s:1,c:[{l:'Det',s:1,w:'the'},{l:'N',s:1,w:'mat'},{l:'PP',s:2,c:[{l:'P',s:2,w:'in'},{l:'NP',s:2,c:[{l:'Det',s:2,w:'the'},{l:'N',s:2,w:'room'}]}]}]}]}]},
+    steps:[
+      { prompt:"How many PPs are embedded in this NP?", options:["One PP","Two PPs (one inside the other)","Three PPs","No PPs"], correct:1, explain:"Two PPs: 'on the mat in the room' — the second PP 'in the room' is inside the NP 'the mat in the room'." },
+      { prompt:"Show the nesting: which PP is inside which?", options:["'in the room' is inside 'on the mat'","'on the mat' is inside 'in the room'","Both PPs are at the same level","Neither contains the other"], correct:0, explain:"'in the room' modifies 'mat', so it's inside the NP 'the mat in the room', which is itself inside the PP 'on the mat in the room'." },
+      { prompt:"This nesting is possible because:", options:["PSG rules can apply only once","The PP rule creates an NP, which can contain another PP (recursion)","English has no fixed word order","Transformational rules rearrange the structure"], correct:1, explain:"PP → P NP, and NP → (Det) N (PP). The NP inside a PP can itself contain a PP — this is recursion." },
+      { prompt:"Can this recursive embedding continue indefinitely?", options:["No, there is a limit of 3 levels","Yes — finite rules can generate infinitely deep structures","Only with transformational rules","Only in spoken language"], correct:1, explain:"Recursion lets finite rules generate structures of unlimited depth — 'the cat on the mat in the room near the garden beside the...' and so on." }
+    ], topic:'psg' },
+  { q:"Identify phrase types", context:"Classify each phrase by its head word.",
+    steps:[
+      { prompt:"'the tall student from India' is what type of phrase?", options:["VP","PP","NP (headed by the noun 'student')","AP"], correct:2, explain:"The head is the noun 'student' — so this is an NP. Det 'the' + A 'tall' + N 'student' + PP 'from India'." },
+      { prompt:"'walked the dog through the park' is:", options:["NP","PP","NP + PP","VP (headed by the verb 'walked')"], correct:3, explain:"The head is the verb 'walked' — so this is a VP: V + NP + PP." },
+      { prompt:"'in the class' is:", options:["NP","VP","PP (headed by the preposition 'in')","S"], correct:2, explain:"The head is the preposition 'in' — so this is a PP: P 'in' + NP 'the class'." },
+      { prompt:"In the rule NP → (Det) (A) N (PP), which element is the HEAD and therefore obligatory?", options:["Det","A (adjective)","N (noun)","PP"], correct:2, explain:"The noun is the head of the NP and the only obligatory element — everything else is optional." }
+    ], topic:'psg' },
+  { q:"Generate the tree for: 'Mary snored'", context:"The simplest possible English sentence.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'N',s:2,w:'Mary'}]},{l:'VP',s:1,c:[{l:'V',s:3,w:'snored'}]}]},
+    steps:[
+      { prompt:"Apply S → NP VP. What are the two constituents?", options:["NP [Mary] + VP [snored]","N [Mary] + V [snored]","Det + N + V","Mary + snored (no structure)"], correct:0, explain:"S → NP [Mary] + VP [snored]." },
+      { prompt:"'Mary' as an NP uses which part of the rule NP → (Det) (A) N?", options:["Det + N","A + N","N only (proper nouns need no determiner)","Det + A + N"], correct:2, explain:"Proper nouns like 'Mary' are NPs with just N — no determiner or adjective needed." },
+      { prompt:"'snored' as a VP uses which part of VP → V (NP) (PP)?", options:["V + NP","V + PP","V only (intransitive — no object)","V + NP + PP"], correct:2, explain:"'snored' is an intransitive verb — the VP consists of V alone with no object NP or PP." }
+    ], topic:'psg' },
+  { q:"Why can't PSG relate 'The dog chased the cat' to 'The cat was chased by the dog'?", context:"A key limitation that motivated TG grammar.",
+    steps:[
+      { prompt:"Both sentences express the same basic meaning. How does PSG handle them?", options:["PSG generates both from the same rule","PSG needs separate, unrelated rules for each","PSG cannot generate either one","PSG uses transformations to relate them"], correct:1, explain:"PSG generates each sentence type with separate rules and cannot capture the systematic relationship between active and passive." },
+      { prompt:"What additional component did Chomsky propose to handle this?", options:["More PS rules","Transformational rules that derive one form from another","A larger lexicon","Phonological rules"], correct:1, explain:"Chomsky proposed transformational rules that take the deep structure of the active and derive the passive from it." },
+      { prompt:"The same limitation applies to which other sentence pairs?", options:["'The boy hit the ball' / 'The boy played the game'","'The boy hit the ball' / 'Did the boy hit the ball?'","'The cat sat' / 'The dog ran'","'Mary sings' / 'John dances'"], correct:1, explain:"Statements, negatives, and questions are all systematically related but PSG needs separate rules for each." }
+    ], topic:'psg_limits' },
+  { q:"Apply rules to: 'The students studied in the library'", context:"Generate using PSG rules.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:1,w:'The'},{l:'N',s:1,w:'students'}]},{l:'VP',s:1,c:[{l:'V',s:2,w:'studied'},{l:'PP',s:2,c:[{l:'P',s:3,w:'in'},{l:'NP',s:3,c:[{l:'Det',s:3,w:'the'},{l:'N',s:3,w:'library'}]}]}]}]},
+    steps:[
+      { prompt:"S → NP VP. Identify the NP and VP:", options:["NP [The students] + VP [studied in the library]","NP [The students studied] + VP [in the library]","NP [The] + VP [students studied in the library]","NP [students] + VP [studied]"], correct:0, explain:"NP [The students] + VP [studied in the library]." },
+      { prompt:"The VP uses which expansion?", options:["V only","V + NP","V + PP","V + NP + PP"], correct:2, explain:"VP → V 'studied' + PP 'in the library'. There's no direct object NP." },
+      { prompt:"Expand PP 'in the library':", options:["P + N → in + library","P + NP → 'in' + 'the library'","PP + NP → in + the library","P + Det + N → in + the + library"], correct:1, explain:"PP → P 'in' + NP 'the library'. Then NP → Det 'the' + N 'library'." }
+    ], topic:'psg' },
+  { q:"Optional elements: Compare 'students' vs 'the tall students from India'", context:"Both are NPs. Show how optional elements expand.",
+    tree:{l:'NP',s:0,c:[{l:'Det',s:2,w:'the'},{l:'A',s:2,w:'tall'},{l:'N',s:0,w:'students'},{l:'PP',s:2,c:[{l:'P',s:2,w:'from'},{l:'NP',s:2,c:[{l:'N',s:2,w:'India'}]}]}]},
+    steps:[
+      { prompt:"Using NP → (Det) (A) N (PP), how is the bare NP 'students' generated?", options:["Det + N","A + N","N alone (all optional elements omitted)","Cannot be generated"], correct:2, explain:"With all optional elements omitted, NP → N 'students'. The parentheses mean Det, A, and PP are all optional." },
+      { prompt:"How is 'the tall students from India' generated?", options:["Det + A + N + PP (all optional elements selected)","Det + N","N + PP","A + N + PP"], correct:0, explain:"All optional slots are filled: Det 'the' + A 'tall' + N 'students' + PP 'from India'." },
+      { prompt:"This shows the POWER of PSG rules because:", options:["One rule can generate many different NP forms","Each NP type needs its own rule","Rules are only applied once","PSG cannot handle variation"], correct:0, explain:"A single NP rule with optional elements can generate bare nouns, Det+N, Det+A+N, N+PP, and many more combinations." }
+    ], topic:'psg' },
+  { q:"The meaning of S → NP VP as 'subject + predicate'", context:"Connect PSG to traditional grammar concepts.",
+    tree:{l:'S',s:0,c:[{l:'NP',s:1,c:[{l:'Det',s:3,w:'The'},{l:'N',s:3,w:'boy'}]},{l:'VP',s:1,c:[{l:'V',s:3,w:'kicked'},{l:'NP',s:3,c:[{l:'Det',s:3,w:'the'},{l:'N',s:3,w:'ball'}]}]}]},
+    steps:[
+      { prompt:"In 'The boy kicked the ball', the NP 'The boy' functions as:", options:["The predicate","The object","The subject of the sentence","The complement"], correct:2, explain:"The NP in S → NP VP is the subject — it tells us who or what the sentence is about." },
+      { prompt:"The VP 'kicked the ball' functions as:", options:["The subject","The predicate (says what the subject did)","Another subject","An adverb"], correct:1, explain:"The VP is the predicate — it tells us what the subject did. S → NP VP modernizes the traditional subject + predicate idea." },
+      { prompt:"Why is S → NP VP better than the flat rule S → Det A N V Det A N?", options:["It's shorter","It shows hierarchical grouping — words belong to phrases, not directly to S","It uses fewer words","It's more prescriptive"], correct:1, explain:"S → NP VP captures that words group into phrases (constituents), not that they just line up under S." }
+    ], topic:'psg' },
+  { q:"PP recursion: Expand 'the book on the shelf in the room near the window'", context:"Trace how PP → P NP and NP → (Det) N (PP) create recursive nesting.",
+    tree:{l:'NP',s:0,c:[{l:'Det',s:0,w:'the'},{l:'N',s:0,w:'book'},{l:'PP',s:1,c:[{l:'P',s:1,w:'on'},{l:'NP',s:1,c:[{l:'Det',s:1,w:'the'},{l:'N',s:1,w:'shelf'},{l:'PP',s:2,c:[{l:'P',s:2,w:'in'},{l:'NP',s:2,c:[{l:'Det',s:2,w:'the'},{l:'N',s:2,w:'room'},{l:'PP',s:3,c:[{l:'P',s:3,w:'near'},{l:'NP',s:3,c:[{l:'Det',s:3,w:'the'},{l:'N',s:3,w:'window'}]}]}]}]}]}]}]},
+    steps:[
+      { prompt:"How many PP layers are embedded here?", options:["One","Two","Three","Four"], correct:2, explain:"Three PPs: 'on the shelf in the room near the window' — each PP embeds inside the NP of the one before it." },
+      { prompt:"The innermost structure is:", options:["NP [the window]","PP [near the window]","NP [the room near the window]","PP [on the shelf]"], correct:0, explain:"The deepest NP is 'the window' — it has no further PP, so the recursion ends there." },
+      { prompt:"This demonstrates that:", options:["English has no recursion","Finite rules can generate infinitely long structures through recursion","We need infinite rules for infinite sentences","PSG cannot handle long phrases"], correct:1, explain:"Recursion (PP → P NP, NP → N (PP)) lets us embed indefinitely — the rules are finite but the structures they generate are not." }
+    ], topic:'psg' }
+];
+
+// ===== SET 4: TG GRAMMAR (10 multistep) =====
+const tgData = [
+  { q:"Derive the PASSIVE of: 'The dog chased the cat'", context:"Kernel (D-Structure): [The dog] + [past] + [chase] + [the cat]",
+    steps:[
+      { prompt:"Step 1 — Permutation: What do we swap?", options:["The verb and the tense","NP₁ (the dog) and NP₂ (the cat)","The auxiliary and the verb","Nothing is swapped"], correct:1, explain:"Permutation swaps the subject NP₁ and object NP₂. Result: [The cat] + [past] + [chase] + [the dog]." },
+      { prompt:"Step 2 — Addition: What elements are inserted?", options:["'not' after the tense","'do' before the verb","'be + en' in the Aux slot and 'by' before the original subject","'have + en' after the verb"], correct:2, explain:"Insert 'be + en' into Aux and 'by' before the demoted subject: [The cat] + [past + be + en] + [chase] + [by] + [the dog]." },
+      { prompt:"Step 3 — Affix Hopping: [past + be] → ? and [en + chase] → ?", options:["past + be → 'was'; en + chase → 'chased'","past + be → 'been'; en + chase → 'chasing'","past + be → 'is'; en + chase → 'chased'","past + be → 'were'; en + chase → 'chasing'"], correct:0, explain:"[past + be] → 'was'; [en + chase] → 'chased'. Surface: The cat was chased by the dog." },
+      { prompt:"What is the final surface structure?", options:["The cat was chased by the dog.","The cat chased the dog.","The dog was chased by the cat.","Did the cat chase the dog?"], correct:0, explain:"T-PASS: The cat was chased by the dog. Three operations: permutation, addition, morphophonemic realization." }
+    ], topic:'transformations' },
+  { q:"Derive the NEGATIVE of: 'The dog chased the cat'", context:"D-Structure: [The dog] + [past] + [chase] + [the cat]",
+    steps:[
+      { prompt:"Step 1 — Addition: Insert 'not' where?", options:["Before the subject","After the object","After the first auxiliary element (tense)","At the end of the sentence"], correct:2, explain:"'not' goes immediately after the tense marker: [The dog] + [past] + [not] + [chase] + [the cat]." },
+      { prompt:"Step 2 — The tense 'past' is now stranded (it can't attach to 'not'). What happens?", options:["The tense is deleted","Do-support: insert dummy 'do' to carry the tense","The tense moves to the verb","Nothing happens"], correct:1, explain:"Do-support is triggered: insert 'do' to carry the stranded tense: [The dog] + [do + past] + [not] + [chase] + [the cat]." },
+      { prompt:"Step 3 — Morphophonemic realization: [do + past] → ?", options:["'does'","'doing'","'did'","'done'"], correct:2, explain:"[do + past] → 'did'. Surface: The dog did not chase the cat." },
+      { prompt:"If the kernel had a modal (e.g., 'The dog can chase the cat'), would do-support be needed?", options:["Yes, always","No — the modal carries the tense, so 'not' attaches after it: 'cannot'","Yes, but only in past tense","Do-support replaces the modal"], correct:1, explain:"With a modal: 'She can swim' → 'She cannot swim.' No do-support because 'can' carries the tense — 'not' simply follows it." }
+    ], topic:'transformations' },
+  { q:"Derive the YES/NO QUESTION of: 'The dog chased the cat'", context:"D-Structure: [The dog] + [past] + [chase] + [the cat]",
+    steps:[
+      { prompt:"Step 1 — Tense isolation: What tense element is separated?", options:["'chase'","'past'","'the dog'","'the cat'"], correct:1, explain:"The tense marker 'past' is isolated from the verb: [The dog] + [past] + [chase] + [the cat]." },
+      { prompt:"Step 2 — Subject-Auxiliary Inversion: Move 'past' where?", options:["To the end of the sentence","To before the subject (left margin)","After the object","It stays in place"], correct:1, explain:"Move tense to the front: [past] + [The dog] + [chase] + [the cat]." },
+      { prompt:"Step 3 — Do-support: Why is 'do' needed here?", options:["Because the sentence is negative","Because the stranded tense at the front needs a verbal host","Because all questions need 'do'","'Do' is not needed"], correct:1, explain:"The tense 'past' is now stranded at the front with no verb to attach to. Insert 'do': [do + past] + [The dog] + [chase] + [the cat] → 'Did the dog chase the cat?'" },
+      { prompt:"If the kernel were 'She can swim', how would the question form?", options:["Does she can swim?","Can she swim? (just invert 'can' and 'she')","Did she can swim?","She can swim?"], correct:1, explain:"With a modal, just invert: 'She can swim' → 'Can she swim?' No do-support needed." }
+    ], topic:'transformations' },
+  { q:"Derive the WH-QUESTION: 'What did the dog chase?'", context:"Starting kernel: 'The dog chased the cat.' We question the OBJECT.",
+    steps:[
+      { prompt:"Step 1 — Lexical Substitution: Replace which NP with a WH-word?", options:["NP₁ 'The dog' → 'who'","NP₂ 'the cat' → 'what'","V 'chase' → 'what'","Tense 'past' → 'when'"], correct:1, explain:"We're questioning the object, so replace NP₂ 'the cat' with 'what': [The dog] + [past] + [chase] + [what]." },
+      { prompt:"Step 2 — WH-Fronting: Move 'what' where?", options:["After the subject","To the end","To the leftmost position in the sentence","It stays in the object position"], correct:2, explain:"WH-Fronting moves 'what' to the front: [what] + [The dog] + [past] + [chase]." },
+      { prompt:"Step 3 — Subject-Aux Inversion + Do-Support:", options:["[what] + [do + past] + [The dog] + [chase] → 'What did the dog chase?'","[what] + [The dog] + [do + past] + [chase]","[what] + [past] + [The dog] + [chase]","[do + past] + [what] + [The dog] + [chase]"], correct:0, explain:"Invert tense and insert 'do': What did the dog chase?" },
+      { prompt:"If we questioned the SUBJECT instead ('Who chased the cat?'), would we need inversion?", options:["Yes, always","No — the WH-word is already in subject position, so no inversion occurs","Yes, plus do-support","The sentence can't be formed"], correct:1, explain:"When WH replaces the subject: 'Who chased the cat?' — no inversion needed because 'who' is already in subject position." }
+    ], topic:'transformations' },
+  { q:"Affix Hopping: Apply the flip-flop rule", context:"Rule: Affix + Verb → Verb + Affix",
+    steps:[
+      { prompt:"Apply affix hopping to: past + kick", options:["kick + past → 'kicked'","past + kick → 'past-kick'","kick → 'kicking'","past + kick → 'did kick'"], correct:0, explain:"Affix + Verb → Verb + Affix: past + kick → kick + past → 'kicked'." },
+      { prompt:"Apply to: present + go", options:["go + present → 'goes'","going","go + past → 'went'","present go"], correct:0, explain:"present + go → go + present → 'goes'." },
+      { prompt:"Apply to: ing + dance", options:["dance + ing → 'dancing'","danced","ing dance","dance + ed → danced"], correct:0, explain:"ing + dance → dance + ing → 'dancing'." },
+      { prompt:"In 'The dog has been chasing the cat', how many affix hops occur?", options:["One","Two","Three (present→has, en→been, ing→chasing)","Four"], correct:2, explain:"present + have → 'has'; en + be → 'been'; ing + chase → 'chasing'. Three separate affix hops." }
+    ], topic:'transformations' },
+  { q:"Combine: Passive + Negative + Question", context:"Kernel: 'The dog chased the cat.' Apply three transformations in sequence.",
+    steps:[
+      { prompt:"First, apply T-PASS:", options:["The dog did not chase the cat.","The cat was chased by the dog.","Did the dog chase the cat?","What did the dog chase?"], correct:1, explain:"T-PASS: 'The cat was chased by the dog.'" },
+      { prompt:"Next, apply T-NEG to the passive result:", options:["The cat was not chased by the dog.","The cat did not chase the dog.","The cat not was chased by the dog.","Not the cat was chased by the dog."], correct:0, explain:"T-NEG: Insert 'not' after the first auxiliary ('was'): 'The cat was not chased by the dog.'" },
+      { prompt:"Finally, apply T-QUES:", options:["Did the cat not chased by the dog?","Was the cat not chased by the dog?","Not was the cat chased by the dog?","The cat was not chased by the dog?"], correct:1, explain:"T-QUES: Invert subject and auxiliary: 'Was the cat not chased by the dog?' No do-support needed because 'was' is already an auxiliary." }
+    ], topic:'transformations' },
+  { q:"The Aux Rule in action: Analyze 'She has been reading a book'", context:"Aux → C (M) (have + en) (be + ing)",
+    steps:[
+      { prompt:"What is the tense (C) in this sentence?", options:["Past","Present","Future","No tense"], correct:1, explain:"'has' = present tense form of 'have'. So C = present." },
+      { prompt:"Is a modal (M) present?", options:["Yes — 'has'","Yes — 'been'","No modal in this sentence","Yes — 'reading'"], correct:2, explain:"No modal (will, can, shall, may, must) is present. 'has' is the perfect auxiliary, not a modal." },
+      { prompt:"Which optional Aux components ARE selected?", options:["(M) only","(have + en) only","(be + ing) only","(have + en) AND (be + ing)"], correct:3, explain:"Both perfect (have + en) and progressive (be + ing) are selected: present + have + en + be + ing + read." },
+      { prompt:"Show the affix hopping: present + have → ?; en + be → ?; ing + read → ?", options:["has; been; reading","have; being; read","had; been; reading","has; be; read"], correct:0, explain:"present + have → 'has'; en + be → 'been'; ing + read → 'reading'. Surface: She has been reading a book." }
+    ], topic:'tg_grammar' },
+  { q:"Deep Structure vs Surface Structure: 'Flying planes can be dangerous'", context:"This sentence is ambiguous — it has two deep structures.",
+    steps:[
+      { prompt:"Deep Structure 1: [The act of flying planes] can be dangerous. What is the subject?", options:["'planes'","'flying planes' (a gerund phrase — the activity)","'can'","'dangerous'"], correct:1, explain:"In DS 1, 'flying planes' is a gerund phrase (NP) — the subject is the activity of flying planes." },
+      { prompt:"Deep Structure 2: [Planes that are flying] can be dangerous. What is the subject?", options:["'flying' (the activity)","'planes that are flying' (a noun modified by a relative clause)","'can be'","'dangerous planes'"], correct:1, explain:"In DS 2, 'planes' is the head noun, modified by a reduced relative clause 'that are flying'." },
+      { prompt:"How does TG grammar explain this ambiguity?", options:["Two different surface structures","Two different deep structures map to the same surface structure","It's a lexical ambiguity in the word 'flying'","TG grammar cannot explain it"], correct:1, explain:"Two different deep structures undergo different transformations but arrive at the same surface string — explaining the ambiguity." }
+    ], topic:'deep_surface' },
+  { q:"Do-Support: When exactly is it triggered?", context:"Compare sentences with and without auxiliaries.",
+    steps:[
+      { prompt:"'She likes tea' → Negative form?", options:["She likes not tea.","She not likes tea.","She does not like tea. (do-support triggered)","She did not like tea."], correct:2, explain:"No auxiliary exists, so the tense 'present' is stranded by 'not'. Do-support: 'does' carries the tense." },
+      { prompt:"'He has finished' → Negative form?", options:["He has not finished. (no do-support needed)","He does not have finished.","He did not finish.","He not has finished."], correct:0, explain:"'has' is already an auxiliary, so 'not' simply follows it. No do-support needed." },
+      { prompt:"'They are leaving' → Question form?", options:["Do they are leaving?","Are they leaving? (invert 'are' — no do-support)","Did they leave?","They are leaving?"], correct:1, explain:"'are' is already an auxiliary — just invert it with the subject. No do-support needed." },
+      { prompt:"The general rule for do-support is:", options:["Always insert 'do' in questions","Insert 'do' only when the tense affix has no verbal host to attach to","Insert 'do' whenever there's a verb","Insert 'do' only in past tense"], correct:1, explain:"Do-support: when a tense affix is stranded (blocked by 'not' or inversion with no auxiliary to move), 'do' is inserted as a dummy carrier." }
+    ], topic:'transformations' },
+  { q:"The Four Operations: Identify each", context:"Match each transformation step to its operation type.",
+    steps:[
+      { prompt:"In passivization, swapping NP₁ and NP₂ positions is:", options:["Addition","Deletion","Substitution","Permutation (Movement)"], correct:3, explain:"Swapping element order = Permutation. In passive, the subject and object switch positions." },
+      { prompt:"Inserting 'be + en' and 'by' in passivization is:", options:["Permutation","Addition (Insertion)","Deletion","Substitution"], correct:1, explain:"Introducing new elements that weren't in the deep structure = Addition." },
+      { prompt:"In WH-questions, replacing 'the cat' with 'what' is:", options:["Permutation","Addition","Deletion","Substitution"], correct:3, explain:"Replacing one element with another = Substitution. The NP is replaced by a WH-word." },
+      { prompt:"In imperative sentences, removing the subject 'you' from 'You close the door' → 'Close the door' is:", options:["Permutation","Addition","Deletion","Substitution"], correct:2, explain:"Removing an element from the structure = Deletion. The subject 'you' is deleted in imperatives." }
+    ], topic:'four_ops' }
+];
+
+// ===== LEARN MODULE =====
+function showLearn() {
+  let html = '';
+  LEARN_DATA.forEach((item, i) => {
+    const info = TOPICS[item.topic] || { icon:'', name:item.title };
+    html += `<div class="learn-card">
+      <div class="learn-header" id="lh-${i}" onclick="toggleLearn(${i})">
+        <span class="lh-icon">${info.icon}</span>
+        <span class="lh-title">${item.title}</span>
+        <span class="lh-arrow">▼</span>
+      </div>
+      <div class="learn-body" id="lb-${i}">${item.content}</div>
+    </div>`;
+  });
+  document.getElementById('learnContent').innerHTML = html;
+  showScreen('learnScreen');
+}
+function toggleLearn(i) {
+  document.getElementById('lh-'+i).classList.toggle('open');
+  document.getElementById('lb-'+i).classList.toggle('open');
+}
+
+// ===== NAVIGATION =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goHome() { showScreen('homeScreen'); }
+
+function confirmExit() {
+  if (testAnswered > 0) {
+    if (!confirm('You have answered some questions. Exit? Your progress will be saved as incomplete.')) return;
+    saveIncomplete();
+  }
+  goHome();
+}
+
+// ===== START TEST =====
+function startTest(setNum) {
+  currentSet = setNum;
+  showScreen('nameScreen');
+  document.getElementById('studentRollNo').value = '';
+  document.getElementById('studentName').value = '';
+  document.getElementById('studentRollNo').focus();
+}
+
+function beginTest() {
+  studentRollNo = document.getElementById('studentRollNo').value.trim();
+  studentName = document.getElementById('studentName').value.trim();
+  if (!studentRollNo) { document.getElementById('studentRollNo').focus(); return; }
+  if (!studentName) { document.getElementById('studentName').focus(); return; }
+
+  testAnswered = 0; testCorrect = 0; testResults = [];
+
+  const setInfo = {
+    1: { title:'Set 1 — Multiple Choice (Syntax)', subtitle:'25 questions across all syntax topics. Select the correct answer.', color:'var(--set1)', data:mcqData },
+    2: { title:'Set 2 — IC Analysis (Multistep)', subtitle:'10 multistep questions. Build tree diagrams step by step.', color:'var(--set2)', data:icData },
+    3: { title:'Set 3 — Phrase Structure Grammar (Multistep)', subtitle:'10 multistep questions on PSG rules, phrases, and recursion.', color:'var(--set3)', data:psgData },
+    4: { title:'Set 4 — TG Grammar (Multistep)', subtitle:'10 multistep transformational derivations.', color:'var(--set4)', data:tgData }
+  };
+  const si = setInfo[currentSet];
+  testData = si.data;
+  document.getElementById('testTitle').textContent = si.title;
+  document.getElementById('testTitle').style.color = si.color;
+  document.getElementById('testSubtitle').textContent = si.subtitle;
+  document.getElementById('testBar').style.background = si.color;
+  document.getElementById('testSubmitBtn').style.display = 'none';
+
+  if (currentSet === 1) renderMCQ();
+  else renderMultistep();
+
+  showScreen('testScreen');
+}
+
+// ===== MCQ RENDERER (Set 1) =====
+function renderMCQ() {
+  let html = '';
+  mcqData.forEach((item, i) => {
+    const tInfo = TOPICS[item.topic] || { name:item.topic, icon:'' };
+    const optHtml = item.options.map((opt, oi) =>
+      `<button class="mcq-option" id="opt-${i}-${oi}" onclick="pickMCQ(${i},${oi})">${String.fromCharCode(65+oi)}) ${opt}</button>`
+    ).join('');
+    html += `<div class="mcq-card" id="mcq-${i}">
+      <div class="q-num">Question ${i+1} of ${mcqData.length} · ${tInfo.icon} ${tInfo.name}</div>
+      <div class="q-text">${item.q}</div>
+      ${optHtml}
+      <div class="mcq-feedback" id="mcqfb-${i}"></div>
+    </div>`;
+  });
+  document.getElementById('testContent').innerHTML = html;
+  updateProgress();
+}
+
+function pickMCQ(qi, oi) {
+  const item = mcqData[qi];
+  item.options.forEach((_, j) => {
+    const btn = document.getElementById(`opt-${qi}-${j}`);
+    btn.disabled = true; btn.onclick = null;
+  });
+  const chosen = document.getElementById(`opt-${qi}-${oi}`);
+  const isCorrect = oi === item.correct;
+  if (isCorrect) {
+    chosen.classList.add('chosen','correct');
+    chosen.innerHTML = `<span class="opt-icon">✅</span> ${chosen.textContent}`;
+  } else {
+    chosen.classList.add('chosen','wrong');
+    chosen.innerHTML = `<span class="opt-icon">❌</span> ${chosen.textContent}`;
+    const cb = document.getElementById(`opt-${qi}-${item.correct}`);
+    cb.classList.add('reveal-correct');
+    cb.innerHTML = `<span class="opt-icon">✅</span> ${cb.textContent}`;
+  }
+  const fb = document.getElementById(`mcqfb-${qi}`);
+  fb.className = `mcq-feedback show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+  fb.innerHTML = `<div class="fb-emoji">${isCorrect ? '🎉' : '💡'}</div><div style="font-weight:700;margin-bottom:4px">${isCorrect ? 'Correct!' : 'Not quite right.'}</div><p>${item.explain}</p>`;
+
+  testAnswered++;
+  if (isCorrect) testCorrect++;
+  testResults.push({ correct:isCorrect, topic:item.topic });
+  updateProgress();
+  if (testAnswered === testData.length) document.getElementById('testSubmitBtn').style.display = 'inline-block';
+}
+
+// ===== MULTISTEP RENDERER (Sets 2–4) =====
+// ===== TREE DIAGRAM RENDERING (SVG with diagonal branches) =====
+function buildTreeSVG(treeData, step) {
+  const NH=22, WH=15, VG=32, HG=12, PAD=14, FS=11, WFS=10;
+
+  // Measure subtree widths bottom-up (only visible nodes)
+  function measure(n) {
+    if (n.s > step) return null;
+    let ch = [];
+    if (n.c) ch = n.c.map(measure).filter(Boolean);
+    const lw = Math.max(30, n.l.length * 8.5 + 18);
+    const ww = n.w ? n.w.length * 6.8 + 10 : 0;
+    const nw = Math.max(lw, ww);
+    let sw = nw;
+    if (ch.length) {
+      const cw = ch.reduce((s,c) => s + c.sw, 0) + (ch.length - 1) * HG;
+      sw = Math.max(nw, cw);
+    }
+    return { l:n.l, w:n.w, s:n.s, lw, nw, sw, ch, isNew: n.s === step && step > 0 };
+  }
+
+  // Position nodes top-down
+  function pos(n, x, y) {
+    n.cx = x + n.sw / 2;
+    n.cy = y;
+    n.by = y + NH + (n.w ? WH : 0); // bottom edge
+    if (n.ch.length) {
+      const cw = n.ch.reduce((s,c) => s + c.sw, 0) + (n.ch.length - 1) * HG;
+      let cx = x + (n.sw - cw) / 2;
+      const cy = n.by + VG;
+      n.ch.forEach(c => { pos(c, cx, cy); cx += c.sw + HG; });
+    }
+  }
+
+  // Find deepest node bottom
+  function maxY(n) {
+    let m = n.by;
+    n.ch.forEach(c => { m = Math.max(m, maxY(c)); });
+    return m;
+  }
+
+  // Determine node colour
+  function col(label, hasW) {
+    if (/^(NP|VP|PP|AP|AdvP)$/.test(label)) return '#0d9488';
+    if (hasW || /^(Det|N|V|A|P|Adv|Pro|Conj|Aux|M)$/.test(label)) return '#2563eb';
+    return '#7c3aed';
+  }
+
+  // Draw a node and recurse
+  function draw(n, o) {
+    const c = col(n.l, n.w);
+    const a = n.isNew ? ' class="sv-pop"' : '';
+    // Diagonal lines to each child FIRST (behind nodes)
+    n.ch.forEach(ch => {
+      o.push(`<line x1="${n.cx}" y1="${n.by}" x2="${ch.cx}" y2="${ch.cy}" stroke="var(--muted,#9ca3af)" stroke-width="1.8" stroke-linecap="round"/>`);
+    });
+    // Pill label
+    o.push(`<rect x="${n.cx - n.lw/2}" y="${n.cy}" width="${n.lw}" height="${NH}" rx="11" fill="${c}"${a}/>`);
+    o.push(`<text x="${n.cx}" y="${n.cy + NH/2 + 4}" text-anchor="middle" fill="#fff" font-size="${FS}" font-weight="700" font-family="system-ui,-apple-system,sans-serif"${a}>${n.l}</text>`);
+    // Word (italic, below pill)
+    if (n.w) {
+      o.push(`<text x="${n.cx}" y="${n.cy + NH + WH - 2}" text-anchor="middle" fill="var(--fg,#374151)" font-size="${WFS}" font-style="italic" font-family="system-ui,-apple-system,sans-serif"${a}>${n.w}</text>`);
+    }
+    // Draw children
+    n.ch.forEach(ch => draw(ch, o));
+  }
+
+  const root = measure(treeData);
+  if (!root) return '';
+  pos(root, PAD, PAD);
+  const w = root.sw + PAD * 2;
+  const h = maxY(root) + PAD;
+  const parts = [];
+  parts.push('<style>.sv-pop{animation:svPop .45s ease-out}@keyframes svPop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}</style>');
+  draw(root, parts);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${parts.join('')}</svg>`;
+}
+
+function updateTree(qi) {
+  const item = testData[qi];
+  if (!item.tree) return;
+  const step = item._stepsDone || 0;
+  const el = document.getElementById(`tree-${qi}`);
+  if (!el) return;
+  let html = '<div class="tree-title">🌲 Tree Diagram</div>' + buildTreeSVG(item.tree, step);
+  if (item.tree2 && step >= 2) {
+    html += '<div class="tree-title" style="margin-top:12px">🌲 Reading 2</div>' + buildTreeSVG(item.tree2, step);
+  }
+  el.innerHTML = html;
+}
+
+function renderMultistep() {
+  let html = '';
+  testData.forEach((item, qi) => {
+    const tInfo = TOPICS[item.topic] || { name:item.topic, icon:'' };
+    let stepsHtml = '';
+    item.steps.forEach((step, si) => {
+      const optHtml = step.options.map((opt, oi) =>
+        `<button class="step-option" id="sopt-${qi}-${si}-${oi}" onclick="pickStep(${qi},${si},${oi})">${String.fromCharCode(65+oi)}) ${opt}</button>`
+      ).join('');
+      stepsHtml += `<div class="step-block ${si > 0 ? 'locked' : ''}" id="step-${qi}-${si}">
+        <div class="step-label">Step ${si+1} of ${item.steps.length}</div>
+        <div class="step-prompt">${step.prompt}</div>
+        ${optHtml}
+        <div class="step-fb" id="sfb-${qi}-${si}"></div>
+      </div>`;
+    });
+    html += `<div class="ms-card" id="ms-${qi}">
+      <div class="q-num">Question ${qi+1} of ${testData.length} · ${tInfo.icon} ${tInfo.name}</div>
+      <div class="q-text">${item.q}</div>
+      <div class="q-context">${item.context}</div>
+      ${item.tree ? `<div class="tree-wrap" id="tree-${qi}"></div>` : ''}
+      ${stepsHtml}
+      <div class="ms-summary" id="mss-${qi}"></div>
+    </div>`;
+  });
+  document.getElementById('testContent').innerHTML = html;
+  // track step progress per question
+  testData.forEach((item, qi) => {
+    item._stepsDone = 0;
+    item._stepsCorrect = 0;
+    updateTree(qi); // render initial tree (step 0 nodes)
+  });
+  updateProgress();
+}
+
+function pickStep(qi, si, oi) {
+  const item = testData[qi];
+  const step = item.steps[si];
+  // disable all options for this step
+  step.options.forEach((_, j) => {
+    const btn = document.getElementById(`sopt-${qi}-${si}-${j}`);
+    btn.disabled = true; btn.onclick = null;
+  });
+  const chosen = document.getElementById(`sopt-${qi}-${si}-${oi}`);
+  const isCorrect = oi === step.correct;
+  const block = document.getElementById(`step-${qi}-${si}`);
+
+  if (isCorrect) {
+    chosen.classList.add('chosen','correct');
+    block.classList.add('done-correct');
+    item._stepsCorrect++;
+  } else {
+    chosen.classList.add('chosen','wrong');
+    block.classList.add('done-wrong');
+    const cb = document.getElementById(`sopt-${qi}-${si}-${step.correct}`);
+    cb.classList.add('reveal-correct');
+  }
+  const fb = document.getElementById(`sfb-${qi}-${si}`);
+  fb.className = `step-fb show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+  fb.innerHTML = `${isCorrect ? '✅' : '💡'} ${step.explain}`;
+
+  item._stepsDone++;
+  updateTree(qi);
+
+  // unlock next step
+  if (si + 1 < item.steps.length) {
+    document.getElementById(`step-${qi}-${si+1}`).classList.remove('locked');
+    document.getElementById(`step-${qi}-${si+1}`).scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+
+  // question complete
+  if (item._stepsDone === item.steps.length) {
+    testAnswered++;
+    const allCorrect = item._stepsCorrect === item.steps.length;
+    if (allCorrect) testCorrect++;
+    testResults.push({ correct:allCorrect, stepsCorrect:item._stepsCorrect, stepsTotal:item.steps.length, topic:item.topic });
+
+    const summary = document.getElementById(`mss-${qi}`);
+    const pct = Math.round((item._stepsCorrect / item.steps.length) * 100);
+    let emoji, msg;
+    if (allCorrect) { emoji = '🌟'; msg = 'Perfect! You nailed every step!'; }
+    else if (pct >= 50) { emoji = '👍'; msg = `Good effort! You got ${item._stepsCorrect}/${item.steps.length} steps right. Review the ones you missed.`; }
+    else { emoji = '📘'; msg = `You got ${item._stepsCorrect}/${item.steps.length} steps. Study the explanations above carefully and try again.`; }
+    summary.className = `ms-summary show ${allCorrect ? 'all-correct' : 'has-errors'}`;
+    summary.innerHTML = `<span style="font-size:1.3rem">${emoji}</span> <strong>${msg}</strong>`;
+
+    updateProgress();
+    if (testAnswered === testData.length) document.getElementById('testSubmitBtn').style.display = 'inline-block';
+  }
+}
+
+function updateProgress() {
+  const total = testData.length;
+  document.getElementById('testProgress').textContent = `${testAnswered}/${total}`;
+  document.getElementById('testBar').style.width = `${(testAnswered/total)*100}%`;
+}
+
+// ===== FINISH TEST =====
+function finishTest() {
+  const total = testData.length;
+  let pct;
+  if (currentSet === 1) {
+    pct = Math.round((testCorrect / total) * 100);
+  } else {
+    // for multistep: average step accuracy
+    let totalSteps = 0, correctSteps = 0;
+    testResults.forEach(r => { totalSteps += r.stepsTotal || 1; correctSteps += r.stepsCorrect !== undefined ? r.stepsCorrect : (r.correct ? 1 : 0); });
+    pct = Math.round((correctSteps / totalSteps) * 100);
+  }
+  const { grade, gradeMsg, emoji: gradeEmoji, encourage } = getGradeInfo(pct);
+  const setNames = { 1:'MCQ (Set 1)', 2:'IC Analysis (Set 2)', 3:'PSG (Set 3)', 4:'TG Grammar (Set 4)' };
+
+  // Topic breakdown
+  const topicPerf = {};
+  testResults.forEach(r => {
+    if (!topicPerf[r.topic]) topicPerf[r.topic] = { correct:0, total:0 };
+    topicPerf[r.topic].total++;
+    if (r.correct) topicPerf[r.topic].correct++;
+  });
+  const sorted = Object.entries(topicPerf).sort((a,b) => (a[1].correct/a[1].total) - (b[1].correct/b[1].total));
+  let barsHtml = sorted.map(([tid, p]) => {
+    const tpct = Math.round((p.correct/p.total)*100);
+    const cls = tpct >= 70 ? 'strong' : (tpct >= 40 ? 'medium' : 'weak');
+    const info = TOPICS[tid] || { name:tid, icon:'' };
+    return `<div class="topic-strength">
+      <span style="min-width:180px">${info.icon} ${info.name}</span>
+      <div class="bar-bg"><div class="bar-fill ${cls}" style="width:${tpct}%"></div></div>
+      <span style="min-width:50px;text-align:right;font-weight:600">${p.correct}/${p.total}</span>
+    </div>`;
+  }).join('');
+
+  const weakTopics = sorted.filter(([,p]) => (p.correct/p.total) < 0.5);
+  let tips = '';
+  if (weakTopics.length > 0) {
+    tips = `<div class="next-step-box"><h3>📌 Focus Areas</h3><ol>` +
+      weakTopics.slice(0,4).map(([tid]) => {
+        const info = TOPICS[tid] || { name:tid, icon:'' };
+        return `<li>${info.icon} <strong>${info.name}</strong> — revise this topic and try again.</li>`;
+      }).join('') + `</ol></div>`;
+  }
+
+  // Level-based twin encouragement
+  let twinMsg = '';
+  if (pct >= 80) {
+    twinMsg = `<p>🌳 <em>Your Syntax Twin says:</em> "Outstanding work! You clearly understand sentence structure. Try the other test sets to master every area, or help a classmate who's still learning!"</p>`;
+  } else if (pct >= 60) {
+    twinMsg = `<p>🌿 <em>Your Syntax Twin says:</em> "You're making great progress! Focus on the topics below — re-read the Learn section for those, then come back for another round. Each attempt makes you stronger!"</p>`;
+  } else if (pct >= 40) {
+    twinMsg = `<p>🌱 <em>Your Syntax Twin says:</em> "Keep going — you're building your foundation! Review the Learn module, especially the weak topics listed below. IC analysis, PSG rules, and transformations take practice. You'll improve!"</p>`;
+  } else {
+    twinMsg = `<p>🌰 <em>Your Syntax Twin says:</em> "This is just the beginning! Start with the basics in the Learn section — What is Syntax, IC Analysis, and PSG rules. Take your time, study the examples, then come back. You've got this!"</p>`;
+  }
+
+  document.getElementById('resultsContent').innerHTML = `
+    <div class="result-header">
+      <h2 style="color:var(--accent)">Results — ${setNames[currentSet]}</h2>
+      <div class="score-ring">${pct}%</div>
+      <div class="grade-text">${grade}</div>
+      <div class="grade-msg">${gradeMsg}</div>
+    </div>
+    <div class="encourage-box">
+      <div class="emoji">${gradeEmoji}</div>
+      <h3>${encourage.title}</h3>
+      <p>${encourage.msg}</p>
+      ${twinMsg}
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:16px 0">
+      <h3 style="color:var(--accent);margin-bottom:12px">Topic-wise Performance</h3>
+      <div style="padding:8px 0">${barsHtml}</div>
+      ${tips}
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" style="color:var(--good)">${testCorrect}</div><div class="stat-label">Questions Perfect</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--weak)">${total - testCorrect}</div><div class="stat-label">With Errors</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${pct}%</div><div class="stat-label">Score</div></div>
+    </div>
+    <div style="text-align:center;margin:24px 0">
+      <button class="btn btn-primary" onclick="goHome()">Back to Home</button>
+      <button class="btn btn-outline" style="margin-left:8px" onclick="startTest(${currentSet})">Retake Test</button>
+    </div>`;
+
+  saveResult({
+    rollNo: studentRollNo, name: studentName,
+    set: setNames[currentSet], score: pct, grade: grade,
+    good: testCorrect, partial: 0, weak: total - testCorrect,
+    unanswered: 0, total: total, status: 'Complete',
+    date: new Date().toISOString()
+  });
+  showScreen('resultsScreen');
+}
+
+// ===== GRADE & ENCOURAGEMENT =====
+function getGradeInfo(pct) {
+  if (pct >= 80) return { grade:'Excellent', gradeMsg:'Outstanding! You have a strong grasp of syntax.', emoji:'🏆',
+    encourage:{ title:"You're a Syntax Star!", msg:"Your understanding of sentence structure, phrase rules, and transformations is impressive. Keep pushing!" }};
+  if (pct >= 60) return { grade:'Good', gradeMsg:'Good understanding. More revision on weaker topics will make you excellent!', emoji:'👏',
+    encourage:{ title:"Great Progress!", msg:"You're well on your way to mastering syntax. Focus on the topics below and try again!" }};
+  if (pct >= 40) return { grade:'Average', gradeMsg:'You know the basics but need more practice.', emoji:'💪',
+    encourage:{ title:"Keep Going!", msg:"IC analysis, PSG rules, and TG transformations take time. Review your notes, study the examples, and retake!" }};
+  return { grade:'Needs Improvement', gradeMsg:"Don't worry — this is a learning journey.", emoji:'📚',
+    encourage:{ title:"This Is Just the Beginning!", msg:"Start with the Learn module. Focus on basic concepts first, then work up to transformations. You've got this!" }};
+}
+
+// ===== SAVE =====
+function saveResult(r) {
+  try {
+    const results = JSON.parse(localStorage.getItem('synTwinResults') || '[]');
+    results.push(r);
+    localStorage.setItem('synTwinResults', JSON.stringify(results));
+  } catch(e) {}
+  if (SHEET_URL) {
+    fetch(SHEET_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(r)
+    }).catch(() => {});
+  }
+}
+
+function saveIncomplete() {
+  const setNames = { 1:'MCQ (Set 1)', 2:'IC Analysis (Set 2)', 3:'PSG (Set 3)', 4:'TG Grammar (Set 4)' };
+  const total = testData.length;
+  let score = 0;
+  if (testAnswered > 0) score = Math.round((testCorrect / testAnswered) * 100);
+  saveResult({
+    rollNo: studentRollNo, name: studentName,
+    set: setNames[currentSet], score: score, grade: 'Incomplete',
+    good: testCorrect, partial: 0, weak: testAnswered - testCorrect,
+    unanswered: total - testAnswered, total: total, status: 'Incomplete',
+    date: new Date().toISOString()
+  });
+}
+
+// ===== DASHBOARD =====
+function showDashLogin() {
+  showScreen('dashboardScreen');
+  document.getElementById('dashContent').innerHTML = `
+    <div class="dash-login">
+      <h2 style="color:var(--accent);margin-bottom:16px;">Teacher Dashboard</h2>
+      <input type="text" id="dashUser" placeholder="Username">
+      <input type="password" id="dashPass" placeholder="Password">
+      <br><button class="btn btn-primary" onclick="dashLogin()">Login</button>
+    </div>`;
+  setTimeout(() => document.getElementById('dashUser').focus(), 100);
+}
+
+function dashLogin() {
+  const u = document.getElementById('dashUser').value.trim();
+  const p = document.getElementById('dashPass').value.trim();
+  if (u === DASH_USER && p === DASH_PASS) renderDashboard();
+  else alert('Invalid credentials.');
+}
+
+function renderDashboard() {
+  const results = JSON.parse(localStorage.getItem('synTwinResults') || '[]');
+  if (results.length === 0 && !SHEET_URL) {
+    document.getElementById('dashContent').innerHTML = `
+      <h2 style="color:var(--accent);margin-bottom:16px">Teacher Dashboard</h2>
+      <p style="color:var(--muted);text-align:center;padding:40px">No results yet.</p>
+      <div style="text-align:center"><button class="btn btn-outline" onclick="goHome()">Back</button></div>`;
+    return;
+  }
+  const totalAttempts = results.length;
+  const complete = results.filter(r => r.status === 'Complete').length;
+  const incomplete = results.filter(r => r.status === 'Incomplete').length;
+  const avgScore = totalAttempts > 0 ? Math.round(results.reduce((s,r) => s + (r.score||0), 0) / totalAttempts) : 0;
+  const unique = [...new Set(results.map(r => r.rollNo))].length;
+
+  let rowsHtml = results.slice().reverse().map(r => {
+    const d = r.date ? new Date(r.date) : null;
+    const ds = d ? d.toLocaleDateString() + ' ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+    const sb = r.status === 'Complete' ? '<span style="color:var(--good);font-weight:600">✅</span>' : '<span style="color:var(--avg);font-weight:600">⏳</span>';
+    return `<tr><td>${r.rollNo||'—'}</td><td>${r.name||'—'}</td><td>${r.set||'—'}</td><td>${r.score||0}%</td><td>${r.grade||'—'}</td><td>${r.good||0}</td><td>${r.weak||0}</td><td>${r.unanswered||0}</td><td>${sb}</td><td style="font-size:.78rem">${ds}</td></tr>`;
+  }).join('');
+
+  document.getElementById('dashContent').innerHTML = `
+    <h2 style="color:var(--accent);margin-bottom:16px">Teacher Dashboard</h2>
+    <div class="dash-stats">
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${totalAttempts}</div><div class="stat-label">Total Attempts</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--good)">${complete}</div><div class="stat-label">Complete</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--avg)">${incomplete}</div><div class="stat-label">Incomplete</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${avgScore}%</div><div class="stat-label">Avg Score</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--set2)">${unique}</div><div class="stat-label">Students</div></div>
+    </div>
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead><tr><th>Roll No</th><th>Name</th><th>Test</th><th>Score</th><th>Grade</th><th>Good</th><th>Errors</th><th>Unanswered</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>${rowsHtml || '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--muted)">No results yet</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div style="text-align:center;margin:24px 0">
+      <button class="btn btn-outline" onclick="goHome()">Back</button>
+      <button class="btn btn-weak btn-sm" style="margin-left:8px" onclick="if(confirm('Clear all local results?')){localStorage.removeItem('synTwinResults');renderDashboard();}">Clear Local Data</button>
+    </div>`;
+}
+</script>
+</body>
+</html>
