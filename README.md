@@ -1,0 +1,2 @@
+# SYNTAXpractice
+syntax for beginners
